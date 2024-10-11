@@ -66,7 +66,7 @@ const LoginScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Text>Welcome Back!</Text>
+      <Text style={styles.headerLogin}>Welcome Back!</Text>
       <TextInput
         placeholder="Email"
         value={email}
@@ -85,7 +85,10 @@ const LoginScreen = ({ navigation }) => {
         <Text style={styles.loginButtonText}>Login</Text>
       </TouchableOpacity>
       <TouchableOpacity onPress={() => navigation.navigate("SignUp")}>
-        <Text style={styles.linkText}>Don't have an account? Sign Up</Text>
+        <Text style={styles.linkText}>
+          Don't have an account?{" "}
+          <Text style={styles.signLinkText}>Sign Up</Text>
+        </Text>
       </TouchableOpacity>
     </View>
   );
@@ -113,21 +116,31 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   loginButton: {
-    backgroundColor: "#007bff", // Color azul para el botón
+    backgroundColor: "#007bff",
     paddingVertical: 12,
     borderRadius: 8,
     alignItems: "center",
     marginVertical: 10,
   },
   loginButtonText: {
-    color: "#fff", // Texto en color blanco
+    color: "#fff",
     fontSize: 16,
     fontWeight: "bold",
   },
   linkText: {
-    color: "blue",
+    color: "black",
     marginTop: 15,
     textAlign: "center",
+  },
+  headerLogin: {
+    fontSize: 24,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginBottom: 20,
+  },
+  signLinkText: {
+    color: "#007bff",
+    fontWeight: "bold",
   },
 });
 

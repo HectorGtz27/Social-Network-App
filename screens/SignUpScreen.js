@@ -70,6 +70,7 @@ const SignUpScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
+      <Text style={styles.headerSignUp}>Create an Account</Text>
       <TextInput
         placeholder="Username"
         value={username}
@@ -90,9 +91,14 @@ const SignUpScreen = ({ navigation }) => {
         secureTextEntry
         style={styles.input}
       />
-      <Button title="Sign Up" onPress={handleSignUp} />
+      <TouchableOpacity style={styles.signUpButton} onPress={handleSignUp}>
+        <Text style={styles.signUpButtonText}>Sign Up</Text>
+      </TouchableOpacity>
       <TouchableOpacity onPress={() => navigation.navigate("Login")}>
-        <Text style={styles.linkText}>Already have an account? Login</Text>
+        <Text style={styles.linkText}>
+          Already have an account?{" "}
+          <Text style={styles.loginLinkText}>Login</Text>
+        </Text>
       </TouchableOpacity>
     </View>
   );
@@ -103,17 +109,42 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     padding: 16,
+    backgroundColor: "#f5f5f5",
   },
   input: {
     borderWidth: 1,
-    borderColor: "#ccc",
-    padding: 8,
+    borderColor: "#ddd",
+    borderRadius: 8,
+    padding: 10,
     marginVertical: 8,
+    backgroundColor: "#fff",
   },
   linkText: {
-    color: "blue",
+    color: "black",
     marginTop: 15,
     textAlign: "center",
+  },
+  headerSignUp: {
+    fontSize: 24,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginBottom: 20,
+  },
+  signUpButton: {
+    backgroundColor: "#21c768",
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: "center",
+    marginVertical: 10,
+  },
+  signUpButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  loginLinkText: {
+    color: "#007bff",
+    fontWeight: "bold",
   },
 });
 
