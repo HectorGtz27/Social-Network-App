@@ -2,19 +2,21 @@ import React, { useState } from "react";
 import {
   View,
   TextInput,
-  Button,
   Alert,
   Text,
   TouchableOpacity,
   StyleSheet,
+  ActivityIndicator,
 } from "react-native";
 import axios from "axios";
 
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false); // Estado para el indicador de carga
 
   const handleLogin = async () => {
+    setIsLoading(true); // Mostrar el indicador de carga
     try {
       const response = await axios.post(
         "https://social-network-v7j7.onrender.com/api/auth/login",
@@ -39,7 +41,6 @@ const LoginScreen = ({ navigation }) => {
       }
     } catch (error) {
       if (error.response) {
-        // Imprimir el mensaje de error del servidor para ver la causa
         console.log("Server Response:", error.response.data);
         Alert.alert(
           "Error",
@@ -61,6 +62,8 @@ const LoginScreen = ({ navigation }) => {
           [{ text: "OK" }]
         );
       }
+    } finally {
+      setIsLoading(false); // Ocultar el indicador de carga cuando se complete la solicitud
     }
   };
 
@@ -81,8 +84,16 @@ const LoginScreen = ({ navigation }) => {
         secureTextEntry
         style={styles.input}
       />
-      <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-        <Text style={styles.loginButtonText}>Login</Text>
+      <TouchableOpacity
+        style={styles.loginButton}
+        onPress={handleLogin}
+        disabled={isLoading} // Desactivar el botón mientras está cargando
+      >
+        {isLoading ? (
+          <ActivityIndicator size="small" color="#fff" />
+        ) : (
+          <Text style={styles.loginButtonText}>Login</Text>
+        )}
       </TouchableOpacity>
       <TouchableOpacity onPress={() => navigation.navigate("SignUp")}>
         <Text style={styles.linkText}>
