@@ -5,6 +5,7 @@ import {
   Text,
   TouchableOpacity,
   StyleSheet,
+  ActivityIndicator,
 } from "react-native";
 import axios from "axios";
 
@@ -13,8 +14,10 @@ const SignUpScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [successMessage, setSuccessMessage] = useState(""); // Estado para el mensaje de éxito
+  const [isLoading, setIsLoading] = useState(false); // Estado para el indicador de carga
 
   const handleSignUp = async () => {
+    setIsLoading(true); // Mostrar el indicador de carga
     try {
       const response = await axios.post(
         "https://social-network-v7j7.onrender.com/api/auth/signup",
@@ -59,6 +62,8 @@ const SignUpScreen = ({ navigation }) => {
           [{ text: "OK" }]
         );
       }
+    } finally {
+      setIsLoading(false); // Ocultar el indicador de carga cuando se complete la solicitud
     }
   };
 
@@ -89,8 +94,16 @@ const SignUpScreen = ({ navigation }) => {
       {successMessage ? (
         <Text style={styles.successMessage}>{successMessage}</Text>
       ) : null}
-      <TouchableOpacity style={styles.signUpButton} onPress={handleSignUp}>
-        <Text style={styles.signUpButtonText}>Sign Up</Text>
+      <TouchableOpacity
+        style={styles.signUpButton}
+        onPress={handleSignUp}
+        disabled={isLoading} // Desactivar el botón mientras está cargando
+      >
+        {isLoading ? (
+          <ActivityIndicator size="small" color="#fff" />
+        ) : (
+          <Text style={styles.signUpButtonText}>Sign Up</Text>
+        )}
       </TouchableOpacity>
       <TouchableOpacity onPress={() => navigation.navigate("Login")}>
         <Text style={styles.linkText}>
