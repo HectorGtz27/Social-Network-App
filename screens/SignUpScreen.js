@@ -2,8 +2,6 @@ import React, { useState } from "react";
 import {
   View,
   TextInput,
-  Button,
-  Alert,
   Text,
   TouchableOpacity,
   StyleSheet,
@@ -14,6 +12,7 @@ const SignUpScreen = ({ navigation }) => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [successMessage, setSuccessMessage] = useState(""); // Estado para el mensaje de éxito
 
   const handleSignUp = async () => {
     try {
@@ -22,7 +21,7 @@ const SignUpScreen = ({ navigation }) => {
         {
           username: username,
           email: email,
-          password: "StrongPass123!",
+          password: password,
         },
         {
           headers: {
@@ -32,14 +31,11 @@ const SignUpScreen = ({ navigation }) => {
       );
 
       if (response.data.token) {
-        Alert.alert("Success", "Account created successfully!", [
-          { text: "OK" },
-        ]);
+        setSuccessMessage("Sign up successful! Please login.");
         console.log("Token:", response.data.token);
       }
     } catch (error) {
       if (error.response) {
-        // El servidor respondió con un código de estado que no está en el rango 2xx
         console.log("Server Response:", error.response.data);
         Alert.alert(
           "Error",
@@ -49,7 +45,6 @@ const SignUpScreen = ({ navigation }) => {
           [{ text: "OK" }]
         );
       } else if (error.request) {
-        // La solicitud fue hecha pero no se recibió ninguna respuesta
         console.log("Request Error:", error.request);
         Alert.alert(
           "Error",
@@ -57,7 +52,6 @@ const SignUpScreen = ({ navigation }) => {
           [{ text: "OK" }]
         );
       } else {
-        // Error al configurar la solicitud
         console.log("Sign up error:", error.message);
         Alert.alert(
           "Error",
@@ -71,6 +65,7 @@ const SignUpScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.headerSignUp}>Create an Account</Text>
+
       <TextInput
         placeholder="Username"
         value={username}
@@ -91,6 +86,9 @@ const SignUpScreen = ({ navigation }) => {
         secureTextEntry
         style={styles.input}
       />
+      {successMessage ? (
+        <Text style={styles.successMessage}>{successMessage}</Text>
+      ) : null}
       <TouchableOpacity style={styles.signUpButton} onPress={handleSignUp}>
         <Text style={styles.signUpButtonText}>Sign Up</Text>
       </TouchableOpacity>
@@ -144,6 +142,13 @@ const styles = StyleSheet.create({
   },
   loginLinkText: {
     color: "#007bff",
+    fontWeight: "bold",
+  },
+  successMessage: {
+    color: "#21c768",
+    textAlign: "center",
+    marginBottom: 10,
+    fontSize: 16,
     fontWeight: "bold",
   },
 });
