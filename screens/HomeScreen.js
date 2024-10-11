@@ -5,7 +5,7 @@ import { View, TextInput, Button, Text, Alert } from "react-native";
 const HomeScreen = () => {
   return (
     <View style={{ padding: 20 }}>
-      <Text>Home</Text>
+      <Text>Homeeeee</Text>
     </View>
   );
 };
