@@ -66,6 +66,7 @@ const LoginScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
+      <Text>Welcome Back!</Text>
       <TextInput
         placeholder="Email"
         value={email}
@@ -80,7 +81,9 @@ const LoginScreen = ({ navigation }) => {
         secureTextEntry
         style={styles.input}
       />
-      <Button title="Login" onPress={handleLogin} />
+      <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+        <Text style={styles.loginButtonText}>Login</Text>
+      </TouchableOpacity>
       <TouchableOpacity onPress={() => navigation.navigate("SignUp")}>
         <Text style={styles.linkText}>Don't have an account? Sign Up</Text>
       </TouchableOpacity>
@@ -93,12 +96,33 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     padding: 16,
+    backgroundColor: "#f5f5f5",
+  },
+  headerText: {
+    fontSize: 24,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginBottom: 20,
   },
   input: {
     borderWidth: 1,
-    borderColor: "#ccc",
-    padding: 8,
+    borderColor: "#ddd",
+    borderRadius: 8,
+    padding: 10,
     marginVertical: 8,
+    backgroundColor: "#fff",
+  },
+  loginButton: {
+    backgroundColor: "#007bff", // Color azul para el botón
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: "center",
+    marginVertical: 10,
+  },
+  loginButtonText: {
+    color: "#fff", // Texto en color blanco
+    fontSize: 16,
+    fontWeight: "bold",
   },
   linkText: {
     color: "blue",
