@@ -11,16 +11,19 @@ const App = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Login">
-        <Stack.Screen
+       
+   
+        {/* <Stack.Screen
           name="Login"
           component={LoginScreen}
           options={{ headerShown: true }}
-        />
-        <Stack.Screen
+        /> */}
+        {/* <Stack.Screen
           name="SignUp"
           component={SignUpScreen}
           options={{ headerShown: true }}
-        />
+        /> */}
+
         <Stack.Screen
           name="Home"
           component={HomeScreen}
