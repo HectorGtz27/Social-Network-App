@@ -1,33 +1,57 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, ActivityIndicator, StyleSheet, TouchableOpacity } from 'react-native';
-import { getRecentPosts } from '../api/postsApi';
+import React, { useEffect, useState, useContext } from "react";
+import { 
+  View, Text, FlatList, ActivityIndicator, 
+  StyleSheet, TouchableOpacity 
+} from "react-native";
+import { AuthContext } from "./AuthContext"; // Importar el contexto
 
 const PostsScreen = ({ navigation }) => {
+  const { authToken } = useContext(AuthContext); // Acceder al token desde el contexto
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchPosts = async () => {
-      const data = await getRecentPosts();
-      console.log('Posts recibidos:', data);
-      setPosts(data);
-      setLoading(false);
+      try {
+        const response = await fetch(
+          `https://social-network-v7j7.onrender.com/api/posts?page=1&limit=10`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${authToken}`, // Usar el token dinámicamente
+            },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Error al obtener los posts");
+        }
+
+        const data = await response.json();
+        setPosts(data);
+      } catch (error) {
+        console.error("Error en la solicitud:", error);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    fetchPosts();
-  }, []);
+    if (authToken) {
+      fetchPosts(); // Solo llamar si el token está disponible
+    }
+  }, [authToken]);
 
   const renderPost = ({ item }) => (
     <TouchableOpacity
       style={styles.postContainer}
-      onPress={() => navigation.navigate('User', { userId: item.user_id })}
+      onPress={() => navigation.navigate("User", { userId: item.user_id })}
     >
       <Text style={styles.username}>{item.username}</Text>
       <Text style={styles.content}>{item.content}</Text>
       <Text style={styles.timestamp}>
-        {new Date(item.created_at).toLocaleString()}
+         {new Date(item.created_at).toLocaleString()}
       </Text>
-
     </TouchableOpacity>
   );
 
@@ -49,38 +73,36 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: '#f2f2f2',
+    backgroundColor: "#f2f2f2",
   },
   postContainer: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     marginBottom: 16,
-    padding: 12,
+    padding: 15,
     borderRadius: 10,
-
-    // Sombra para iOS
-    shadowColor: '#000',
+    margin: 3,
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 5,
-
-    // Sombra para Android
-    elevation: 8,
+    elevation: 8, // Sombra para Android
   },
   username: {
-    fontWeight: 'bold',
+    fontWeight: "bold",
     fontSize: 16,
     marginBottom: 4,
   },
   content: {
-    marginTop: 8,
+    marginTop: 3,
     fontSize: 14,
+    marginBottom: 5,
   },
   timestamp: {
-    marginTop: 4,
+    marginTop: 5,
+
     fontSize: 12,
-    color: 'gray',
+    color: "gray",
   },
 });
 
 export default PostsScreen;
-

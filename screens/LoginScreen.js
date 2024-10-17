@@ -8,7 +8,6 @@ import {
   StyleSheet,
   ActivityIndicator,
 } from "react-native";
-import * as SecureStore from 'expo-secure-store';
 import axios from "axios";
 import { AuthContext } from "./AuthContext";
 
@@ -39,7 +38,7 @@ const LoginScreen = ({ navigation }) => {
         Alert.alert("Success", `Welcome back, ${response.data.username}!`, [
           { text: "OK" },
         ]);
-        navigation.navigate("Home");
+        navigation.navigate("Posts");
       }
     } catch (error) {
       if (error.response) {
