@@ -23,7 +23,7 @@ function MainTabs() {
             iconName = "home";
           } else if (route.name === "Following") {
             iconName = "people";
-          } else if (route.name === "Profile"){
+          } else if (route.name === "Profile") {
             iconName = "person";
           }
 
@@ -35,7 +35,7 @@ function MainTabs() {
     >
       <Tab.Screen name="Home" component={HomeScreen} options={{ title: "Home" }} />
       <Tab.Screen name="Following" component={FollowingScreen} options={{ title: "Following" }} />
-      <Tab.Screen name= "Profile" component={ProfileScreen} options= {{title: "Profile" }}/>
+      <Tab.Screen name="Profile" component={ProfileScreen} options={{ title: "Profile" }} />
     </Tab.Navigator>
   );
 }
@@ -45,16 +45,16 @@ const App = () => {
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Login">
 
-        {/* <Stack.Screen
+        <Stack.Screen
           name="Login"
           component={LoginScreen}
           options={{ headerShown: true }}
-        /> */}
-        {/* <Stack.Screen
+        />
+        <Stack.Screen
           name="SignUp"
           component={SignUpScreen}
           options={{ headerShown: true }}
-        /> */}
+        />
 
         <Stack.Screen
           name="Main"

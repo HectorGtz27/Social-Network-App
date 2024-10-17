@@ -35,7 +35,7 @@ const LoginScreen = ({ navigation }) => {
         Alert.alert("Success", `Welcome back, ${response.data.username}!`, [
           { text: "OK" },
         ]);
-        navigation.navigate("Home"); // Redirigir al HomeScreen si el inicio de sesión es exitoso
+        navigation.navigate("Main"); // Redirigir al HomeScreen si el inicio de sesión es exitoso
         console.log("Token:", response.data.token);
         console.log("User ID:", response.data.userId);
       }
