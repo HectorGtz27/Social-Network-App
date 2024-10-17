@@ -119,3 +119,12 @@ export const unlikePost = async (postId, token) => {
     },
   });
 };
+
+export const fetchFollowingPosts = async (token, page = 1, limit = 10) => {
+    return axios.get(`${API_URL}/feed?page=${page}&limit=${limit}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+  };

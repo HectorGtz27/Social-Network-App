@@ -24,11 +24,12 @@ const LoginScreen = ({ navigation }) => {
       const response = await loginService(email, password); // Llamar a la función de login de ApiService
 
       if (response.data.token) {
+        console.log(response.data.token);
         login(response.data.token); // Guardar el token en el contexto
         Alert.alert("Success", `Welcome back, ${response.data.username}!`, [
           { text: "OK" },
         ]);
-        navigation.navigate("Posts");
+        navigation.navigate("Main");
       }
     } catch (error) {
       if (error.response) {
