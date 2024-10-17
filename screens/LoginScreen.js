@@ -8,6 +8,7 @@ import {
   StyleSheet,
   ActivityIndicator,
 } from "react-native";
+import * as SecureStore from 'expo-secure-store';
 import axios from "axios";
 
 const LoginScreen = ({ navigation }) => {
@@ -35,7 +36,9 @@ const LoginScreen = ({ navigation }) => {
         Alert.alert("Success", `Welcome back, ${response.data.username}!`, [
           { text: "OK" },
         ]);
-        navigation.navigate("Home"); // Redirigir al HomeScreen si el inicio de sesión es exitoso
+
+        await SecureStore.setItemAsync('token',response.data.token);
+        navigation.navigate("Posts"); // Redirigir al HomeScreen si el inicio de sesión es exitoso
         console.log("Token:", response.data.token);
         console.log("User ID:", response.data.userId);
       }
