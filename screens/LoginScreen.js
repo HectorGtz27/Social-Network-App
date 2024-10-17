@@ -1,15 +1,16 @@
 import React, { useState, useContext } from "react";
 import {
-  View,
   TextInput,
   Alert,
   Text,
   TouchableOpacity,
+  KeyboardAvoidingView,
   StyleSheet,
   ActivityIndicator,
+  Platform,
 } from "react-native";
-import axios from "axios";
-import { AuthContext } from "./AuthContext";
+import { AuthContext } from "../contexts/AuthContext";
+import { login as loginService } from "../services/ApiService"; // Importar la función de login de ApiService
 
 const LoginScreen = ({ navigation }) => {
   const { login } = useContext(AuthContext); // Usa la función de login del contexto
@@ -20,18 +21,7 @@ const LoginScreen = ({ navigation }) => {
   const handleLogin = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.post(
-        "https://social-network-v7j7.onrender.com/api/auth/login",
-        {
-          email: email,
-          password: password,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await loginService(email, password); // Llamar a la función de login de ApiService
 
       if (response.data.token) {
         login(response.data.token); // Guardar el token en el contexto
@@ -69,7 +59,10 @@ const LoginScreen = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"} // Ajusta el comportamiento en función de la plataforma
+      style={styles.container}
+    >
       <Text style={styles.headerLogin}>Welcome Back!</Text>
       <TextInput
         placeholder="Email"
@@ -102,7 +95,7 @@ const LoginScreen = ({ navigation }) => {
           <Text style={styles.signLinkText}>Sign Up</Text>
         </Text>
       </TouchableOpacity>
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 
