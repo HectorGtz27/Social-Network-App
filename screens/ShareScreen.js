@@ -6,6 +6,9 @@ import {
   Text,
   StyleSheet,
   Alert,
+  KeyboardAvoidingView,
+  ScrollView,
+  Platform,
 } from "react-native";
 import axios from "axios";
 import { AuthContext } from "./AuthContext"; // Obtener el token del contexto
@@ -14,6 +17,7 @@ const ShareScreen = ({ navigation }) => {
   const { authToken } = useContext(AuthContext); // Obtener el token de autenticación
   const [content, setContent] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState(""); // Estado para el mensaje de éxito
 
   const handleCreatePost = async () => {
     if (!content) {
@@ -33,8 +37,8 @@ const ShareScreen = ({ navigation }) => {
           },
         }
       );
+      setSuccessMessage("Post created successfully!");
       Alert.alert("Success", "Post created successfully!", [{ text: "OK" }]);
-      navigation.navigate("Home"); // Redirigir a Home después de crear el post
     } catch (error) {
       console.log(error);
       Alert.alert("Error", "Could not create post", [{ text: "OK" }]);
@@ -44,39 +48,62 @@ const ShareScreen = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
-      <TextInput
-        style={styles.input}
-        placeholder="Write your post here..."
-        value={content}
-        onChangeText={setContent}
-      />
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"} // Ajusta el comportamiento en función de la plataforma
+      style={styles.container}
+    >
+      <ScrollView contentContainerStyle={styles.scrollViewContent}>
+        <TextInput
+          style={styles.input}
+          placeholder="Share your thoughts..."
+          value={content}
+          onChangeText={setContent}
+          multiline={true}
+          numberOfLines={6}
+        />
+        {successMessage ? (
+          <Text style={styles.successMessage}>{successMessage}</Text>
+        ) : null}
 
-      <TouchableOpacity
-        style={styles.button}
-        onPress={handleCreatePost}
-        disabled={isLoading}
-      >
-        <Text style={styles.buttonText}>Share Post</Text>
-      </TouchableOpacity>
-    </View>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={handleCreatePost}
+          disabled={isLoading}
+        >
+          <Text style={styles.buttonText}>Post</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
     backgroundColor: "#f5f5f5",
-    justifyContent: "center",
+  },
+  scrollViewContent: {
+    flexGrow: 1,
+    justifyContent: "top",
+    padding: 20,
+  },
+  successMessage: {
+    color: "#21c768",
+    textAlign: "center",
+    marginBottom: 20,
+    marginTop: 10,
+    fontSize: 16,
+    fontWeight: "bold",
   },
   input: {
     borderWidth: 1,
     borderColor: "#ddd",
     borderRadius: 8,
-    padding: 10,
+    padding: 15,
     backgroundColor: "#fff",
     marginBottom: 10,
+    height: 300,
+    textAlignVertical: "top",
   },
   button: {
     backgroundColor: "#007bff",
