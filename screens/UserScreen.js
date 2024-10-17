@@ -14,22 +14,22 @@ const UserScreen = ({ route, navigation }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const userData = await fetchUserInfo(profileUserId, authToken);
-        setUserInfo(userData);
-
-        const postsData = await fetchUserPosts(profileUserId, authToken);
-        setUserPosts(postsData);
-      } catch (error) {
-        console.error("Error en la solicitud:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (authToken) fetchUserData();
+    fetchUserData();
   }, [authToken, profileUserId]);
+
+  const fetchUserData = async () => {
+    try {
+      const userData = await fetchUserInfo(profileUserId, authToken);
+      setUserInfo(userData);
+
+      const postsData = await fetchUserPosts(profileUserId, authToken);
+      setUserPosts(postsData);
+    } catch (error) {
+      console.error("Error en la solicitud:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleLikeToggle = async (post) => {
     const isLiked = post.liked;
@@ -40,6 +40,7 @@ const UserScreen = ({ route, navigation }) => {
         await likePost(post.id, authToken);
       }
 
+      // Actualizar la lista de posts para reflejar los cambios
       setUserPosts((prevPosts) =>
         prevPosts.map((p) =>
           p.id === post.id
@@ -83,7 +84,6 @@ const UserScreen = ({ route, navigation }) => {
       </View>
     </TouchableOpacity>
   );
-  
 
   if (loading) {
     return <ActivityIndicator size="large" color="black" />;

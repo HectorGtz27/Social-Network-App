@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext } from "react";
 import { 
   View, Text, FlatList, ActivityIndicator, 
-  StyleSheet, TouchableOpacity, TextInput, Image, Alert 
+  StyleSheet, TouchableOpacity, TextInput, Image 
 } from "react-native";
 import { fetchPosts, createPost, updatePost, deletePost, likePost, unlikePost } from "../services/ApiService"; 
 import { AuthContext } from "../contexts/AuthContext"; 
@@ -12,7 +12,6 @@ const PostsScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [content, setContent] = useState("");
-  const [editPostId, setEditPostId] = useState(null);
 
   // Cargar posts al inicio
   useEffect(() => {
@@ -31,70 +30,30 @@ const PostsScreen = ({ navigation }) => {
     if (authToken) loadPosts();
   }, [authToken]);
 
-  // Crear un nuevo post
-  const handleCreatePost = async () => {
-    if (!content.trim()) {
-      Alert.alert("Error", "El contenido no puede estar vacío.", [{ text: "OK" }]);
-      return;
-    }
-
-    setIsLoading(true);
+  // Manejar Like y Unlike sin alertas
+  const handleLikeToggle = async (post) => {
+    const isLiked = post.liked;
     try {
-      const response = await createPost(content, authToken);
-      const newPost = {
-        ...response.data,
-        username: username, // Asignar el nombre del usuario actual
-        user_id: userId, // Asignar el ID del usuario actual
-      };
-      setPosts([newPost, ...posts]);
-      setContent("");
-      Alert.alert("Éxito", "Post creado correctamente.", [{ text: "OK" }]);
-    } catch (error) {
-      console.error("Error al crear el post:", error);
-      Alert.alert("Error", "No se pudo crear el post.", [{ text: "OK" }]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+      if (isLiked) {
+        await unlikePost(post.id, authToken);
+      } else {
+        await likePost(post.id, authToken);
+      }
 
-  // Eliminar un post
-  const handleDeletePost = async (postId) => {
-    try {
-      await deletePost(postId, authToken);
-      setPosts(posts.filter((post) => post.id !== postId));
-      Alert.alert("Éxito", "Post eliminado correctamente.", [{ text: "OK" }]);
-    } catch (error) {
-      console.error("Error al eliminar el post:", error);
-      Alert.alert("Error", "No se pudo eliminar el post.", [{ text: "OK" }]);
-    }
-  };
-
-  // Iniciar la edición de un post
-  const startEditingPost = (postId, postContent) => {
-    setEditPostId(postId);
-    setContent(postContent);
-  };
-
-  // Actualizar un post
-  const handleEditPost = async () => {
-    if (!editPostId || !content.trim()) return;
-
-    setIsLoading(true);
-    try {
-      const response = await updatePost(editPostId, content, authToken);
-      setPosts(
-        posts.map((post) =>
-          post.id === editPostId ? { ...post, content: response.data.content } : post
+      // Actualizar el estado del post con el nuevo estado de like
+      setPosts((prevPosts) =>
+        prevPosts.map((p) =>
+          p.id === post.id
+            ? {
+                ...p,
+                liked: !isLiked,
+                likes: Math.max(0, p.likes + (isLiked ? -1 : 1)), // Evitar negativos
+              }
+            : p
         )
       );
-      setContent("");
-      setEditPostId(null);
-      Alert.alert("Éxito", "Post actualizado correctamente.", [{ text: "OK" }]);
     } catch (error) {
-      console.error("Error al actualizar el post:", error);
-      Alert.alert("Error", "No se pudo actualizar el post.", [{ text: "OK" }]);
-    } finally {
-      setIsLoading(false);
+      console.error("Error al cambiar el estado del like:", error);
     }
   };
 
@@ -123,21 +82,8 @@ const PostsScreen = ({ navigation }) => {
             style={styles.likeImage}
           />
         </TouchableOpacity>
-        <Text style={styles.likesCount}>
-          {item.likes > 0 ? `${item.likes} Likes` : '0 Likes'}
-        </Text>
+        <Text style={styles.likesCount}>{item.likes} {item.likes === 1 ? 'Like' : 'Likes'}</Text>
       </View>
-
-      {item.user_id === userId && (
-        <View style={styles.actions}>
-          <TouchableOpacity onPress={() => startEditingPost(item.id, item.content)}>
-            <Text style={styles.editText}>Editar</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => handleDeletePost(item.id)}>
-            <Text style={styles.deleteText}>Borrar</Text>
-          </TouchableOpacity>
-        </View>
-      )}
     </TouchableOpacity>
   );
 
@@ -156,11 +102,11 @@ const PostsScreen = ({ navigation }) => {
         />
         <TouchableOpacity
           style={styles.button}
-          onPress={editPostId ? handleEditPost : handleCreatePost}
+          onPress={() => handleCreatePost(content)}
           disabled={isLoading}
         >
           <Text style={styles.buttonText}>
-            {editPostId ? "Actualizar Post" : "Crear Post"}
+            {isLoading ? "Creando..." : "Crear Post"}
           </Text>
         </TouchableOpacity>
       </View>
@@ -245,19 +191,6 @@ const styles = StyleSheet.create({
   likesCount: {
     fontSize: 14,
     color: "gray",
-  },
-  actions: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 10,
-  },
-  editText: {
-    color: "blue",
-    fontWeight: "bold",
-  },
-  deleteText: {
-    color: "red",
-    fontWeight: "bold",
   },
 });
 
