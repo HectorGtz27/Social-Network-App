@@ -10,8 +10,8 @@ import {
   ScrollView,
   Platform,
 } from "react-native";
-import axios from "axios";
 import { AuthContext } from "../contexts/AuthContext"; // Obtener el token del contexto
+import { createPost } from "../services/ApiService"; // Importar la función de creación de post
 
 const ShareScreen = ({ navigation }) => {
   const { authToken } = useContext(AuthContext); // Obtener el token de autenticación
@@ -27,16 +27,7 @@ const ShareScreen = ({ navigation }) => {
 
     setIsLoading(true);
     try {
-      const response = await axios.post(
-        "https://social-network-v7j7.onrender.com/api/posts",
-        { content },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${authToken}`, // Usar el token de autenticación
-          },
-        }
-      );
+      const response = await createPost(content, authToken); // Llamar a la función de ApiService para crear un post
       setSuccessMessage("Post created successfully!");
       Alert.alert("Success", "Post created successfully!", [{ text: "OK" }]);
     } catch (error) {

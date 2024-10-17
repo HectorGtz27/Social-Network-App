@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useContext, useState } from "react";
 import {
   View,
   TouchableOpacity,
@@ -9,8 +9,8 @@ import {
   TextInput,
 } from "react-native";
 import { AuthContext } from "../contexts/AuthContext"; // Obtener el contexto de autenticación
-import axios from "axios";
 import { useFocusEffect } from "@react-navigation/native"; // Importar useFocusEffect
+import { fetchPosts, updatePost, deletePost } from "../services/ApiService"; // Importar funciones de ApiService
 
 const HomeScreen = ({ navigation }) => {
   const { authToken } = useContext(AuthContext); // Obtener el token del contexto
@@ -20,17 +20,10 @@ const HomeScreen = ({ navigation }) => {
   const [content, setContent] = useState("");
 
   // Función para obtener los posts al cargar la pantalla
-  const fetchPosts = async () => {
+  const getPosts = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get(
-        "https://social-network-v7j7.onrender.com/api/posts",
-        {
-          headers: {
-            Authorization: `Bearer ${authToken}`, // Usar el token de autenticación
-          },
-        }
-      );
+      const response = await fetchPosts(authToken); // Llamar a la función de ApiService para obtener posts
       setPosts(response.data); // Almacenar los posts en el estado
     } catch (error) {
       console.log(error);
@@ -43,25 +36,16 @@ const HomeScreen = ({ navigation }) => {
   // Refrescar los posts cada vez que se vuelve a la pantalla Home
   useFocusEffect(
     React.useCallback(() => {
-      fetchPosts(); // Cargar los posts cada vez que la pantalla tiene foco
+      getPosts(); // Cargar los posts cada vez que la pantalla tiene foco
     }, [])
   );
 
-  // Editar un post existente con PATCH
+  // Editar un post existente
   const handleEditPost = async () => {
     if (!editPostId) return;
     setIsLoading(true);
     try {
-      const response = await axios.patch(
-        `https://social-network-v7j7.onrender.com/api/posts/${editPostId}`,
-        { content },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${authToken}`, // Usar el token de autenticación
-          },
-        }
-      );
+      const response = await updatePost(editPostId, content, authToken); // Llamar a la función de ApiService para editar post
       setPosts(
         posts.map((post) =>
           post.id === editPostId
@@ -80,18 +64,11 @@ const HomeScreen = ({ navigation }) => {
     }
   };
 
-  // Borrar un post existente con DELETE
+  // Borrar un post existente
   const handleDeletePost = async (postId) => {
     setIsLoading(true);
     try {
-      await axios.delete(
-        `https://social-network-v7j7.onrender.com/api/posts/${postId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${authToken}`, // Token de autenticación
-          },
-        }
-      );
+      await deletePost(postId, authToken); // Llamar a la función de ApiService para eliminar post
       setPosts(posts.filter((post) => post.id !== postId));
       Alert.alert("Success", "Post deleted successfully!", [{ text: "OK" }]);
     } catch (error) {
