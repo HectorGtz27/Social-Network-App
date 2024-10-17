@@ -1,46 +1,48 @@
-import React, { useState, useContext } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import {
   View,
-  TextInput,
   TouchableOpacity,
   Text,
   StyleSheet,
   FlatList,
   Alert,
+  TextInput,
 } from "react-native";
+import { AuthContext } from "./AuthContext"; // Obtener el contexto de autenticación
 import axios from "axios";
-import { AuthContext } from "./AuthContext";
 
-const HomeScreen = () => {
-  const { authToken } = useContext(AuthContext);
-  const [content, setContent] = useState("");
+const HomeScreen = ({ navigation }) => {
+  const { authToken } = useContext(AuthContext); // Obtener el token del contexto
   const [posts, setPosts] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [editPostId, setEditPostId] = useState(null);
+  const [content, setContent] = useState("");
 
-  const handleCreatePost = async () => {
+  // Función para obtener los posts al cargar la pantalla
+  const fetchPosts = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.post(
+      const response = await axios.get(
         "https://social-network-v7j7.onrender.com/api/posts",
-        { content },
         {
           headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${authToken}`,
+            Authorization: `Bearer ${authToken}`, // Usar el token de autenticación
           },
         }
       );
-      setPosts([...posts, response.data]);
-      setContent("");
-      Alert.alert("Success", "Post created successfully!", [{ text: "OK" }]);
+      setPosts(response.data); // Almacenar los posts en el estado
     } catch (error) {
       console.log(error);
-      Alert.alert("Error", "Could not create post", [{ text: "OK" }]);
+      Alert.alert("Error", "Could not fetch posts", [{ text: "OK" }]);
     } finally {
       setIsLoading(false);
     }
   };
+
+  // Cargar los posts cuando la pantalla se carga
+  useEffect(() => {
+    fetchPosts();
+  }, []);
 
   // Editar un post existente con PATCH
   const handleEditPost = async () => {
@@ -53,7 +55,7 @@ const HomeScreen = () => {
         {
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${authToken}`,
+            Authorization: `Bearer ${authToken}`, // Usar el token de autenticación
           },
         }
       );
@@ -83,11 +85,11 @@ const HomeScreen = () => {
         `https://social-network-v7j7.onrender.com/api/posts/${postId}`,
         {
           headers: {
-            Authorization: `Bearer ${authToken}`,
+            Authorization: `Bearer ${authToken}`, // Token de autenticación
           },
         }
       );
-      setPosts(posts.filter((post) => post.id !== postId)); // Eliminar el post de la lista
+      setPosts(posts.filter((post) => post.id !== postId));
       Alert.alert("Success", "Post deleted successfully!", [{ text: "OK" }]);
     } catch (error) {
       console.log(error);
@@ -97,7 +99,7 @@ const HomeScreen = () => {
     }
   };
 
-  // Función para manejar la edición
+  // Iniciar el proceso de edición
   const startEditingPost = (postId, postContent) => {
     setEditPostId(postId);
     setContent(postContent);
@@ -107,23 +109,25 @@ const HomeScreen = () => {
     <View style={styles.container}>
       <Text style={styles.header}>Posts</Text>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Write a post..."
-        value={content}
-        onChangeText={setContent}
-      />
+      {editPostId && (
+        <View>
+          <TextInput
+            style={styles.input}
+            placeholder="Edit your post..."
+            value={content}
+            onChangeText={setContent}
+          />
+          <TouchableOpacity
+            style={styles.button}
+            onPress={handleEditPost}
+            disabled={isLoading}
+          >
+            <Text style={styles.buttonText}>Update Post</Text>
+          </TouchableOpacity>
+        </View>
+      )}
 
-      <TouchableOpacity
-        style={styles.button}
-        onPress={editPostId ? handleEditPost : handleCreatePost}
-        disabled={isLoading}
-      >
-        <Text style={styles.buttonText}>
-          {editPostId ? "Update Post" : "Create Post"}
-        </Text>
-      </TouchableOpacity>
-
+      {/* Mostrar los posts */}
       <FlatList
         data={posts}
         keyExtractor={(item) => item.id.toString()}
@@ -143,6 +147,14 @@ const HomeScreen = () => {
           </View>
         )}
       />
+
+      {/* Botón de "+" para navegar a la pantalla Share */}
+      <TouchableOpacity
+        style={styles.addButton}
+        onPress={() => navigation.navigate("Share")}
+      >
+        <Text style={styles.addButtonText}>+</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -200,6 +212,22 @@ const styles = StyleSheet.create({
   },
   deleteText: {
     color: "red",
+  },
+  addButton: {
+    position: "absolute",
+    bottom: 20,
+    right: 20,
+    backgroundColor: "#007bff",
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  addButtonText: {
+    color: "#fff",
+    fontSize: 36,
+    fontWeight: "bold",
   },
 });
 
