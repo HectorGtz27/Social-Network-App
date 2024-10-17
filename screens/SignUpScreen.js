@@ -6,8 +6,9 @@ import {
   TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
+  Alert,
 } from "react-native";
-import axios from "axios";
+import { signUp } from "../services/ApiService"; // Importar la función de ApiService
 
 const SignUpScreen = ({ navigation }) => {
   const [username, setUsername] = useState("");
@@ -19,19 +20,7 @@ const SignUpScreen = ({ navigation }) => {
   const handleSignUp = async () => {
     setIsLoading(true); // Mostrar el indicador de carga
     try {
-      const response = await axios.post(
-        "https://social-network-v7j7.onrender.com/api/auth/signup",
-        {
-          username: username,
-          email: email,
-          password: password,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await signUp(username, email, password); // Llamar a la función de ApiService
 
       if (response.data.token) {
         setSuccessMessage("Sign up successful! Please login.");

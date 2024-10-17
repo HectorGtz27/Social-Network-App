@@ -8,8 +8,8 @@ import {
   StyleSheet,
   ActivityIndicator,
 } from "react-native";
-import axios from "axios";
 import { AuthContext } from "../contexts/AuthContext";
+import { login as loginService } from "../services/ApiService"; // Importar la función de login de ApiService
 
 const LoginScreen = ({ navigation }) => {
   const { login } = useContext(AuthContext); // Usa la función de login del contexto
@@ -20,18 +20,7 @@ const LoginScreen = ({ navigation }) => {
   const handleLogin = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.post(
-        "https://social-network-v7j7.onrender.com/api/auth/login",
-        {
-          email: email,
-          password: password,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await loginService(email, password); // Llamar a la función de login de ApiService
 
       if (response.data.token) {
         login(response.data.token); // Guardar el token en el contexto
