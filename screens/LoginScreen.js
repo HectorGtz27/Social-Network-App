@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import {
   View,
   TextInput,
@@ -9,14 +9,16 @@ import {
   ActivityIndicator,
 } from "react-native";
 import axios from "axios";
+import { AuthContext } from "./AuthContext";
 
 const LoginScreen = ({ navigation }) => {
+  const { login } = useContext(AuthContext); // Usa la función de login del contexto
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false); // Estado para el indicador de carga
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleLogin = async () => {
-    setIsLoading(true); // Mostrar el indicador de carga
+    setIsLoading(true);
     try {
       const response = await axios.post(
         "https://social-network-v7j7.onrender.com/api/auth/login",
@@ -32,12 +34,11 @@ const LoginScreen = ({ navigation }) => {
       );
 
       if (response.data.token) {
+        login(response.data.token); // Guardar el token en el contexto
         Alert.alert("Success", `Welcome back, ${response.data.username}!`, [
           { text: "OK" },
         ]);
-        navigation.navigate("Home"); // Redirigir al HomeScreen si el inicio de sesión es exitoso
-        console.log("Token:", response.data.token);
-        console.log("User ID:", response.data.userId);
+        navigation.navigate("Home");
       }
     } catch (error) {
       if (error.response) {
@@ -63,7 +64,7 @@ const LoginScreen = ({ navigation }) => {
         );
       }
     } finally {
-      setIsLoading(false); // Ocultar el indicador de carga cuando se complete la solicitud
+      setIsLoading(false);
     }
   };
 
@@ -87,7 +88,7 @@ const LoginScreen = ({ navigation }) => {
       <TouchableOpacity
         style={styles.loginButton}
         onPress={handleLogin}
-        disabled={isLoading} // Desactivar el botón mientras está cargando
+        disabled={isLoading}
       >
         {isLoading ? (
           <ActivityIndicator size="small" color="#fff" />
