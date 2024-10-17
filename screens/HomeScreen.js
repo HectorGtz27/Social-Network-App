@@ -8,7 +8,7 @@ import {
   Alert,
   TextInput,
 } from "react-native";
-import { AuthContext } from "./AuthContext"; // Obtener el contexto de autenticación
+import { AuthContext } from "../contexts/AuthContext"; // Obtener el contexto de autenticación
 import axios from "axios";
 import { useFocusEffect } from "@react-navigation/native"; // Importar useFocusEffect
 

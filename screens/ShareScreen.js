@@ -11,7 +11,7 @@ import {
   Platform,
 } from "react-native";
 import axios from "axios";
-import { AuthContext } from "./AuthContext"; // Obtener el token del contexto
+import { AuthContext } from "../contexts/AuthContext"; // Obtener el token del contexto
 
 const ShareScreen = ({ navigation }) => {
   const { authToken } = useContext(AuthContext); // Obtener el token de autenticación

@@ -9,7 +9,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 import axios from "axios";
-import { AuthContext } from "./AuthContext";
+import { AuthContext } from "../contexts/AuthContext";
 
 const LoginScreen = ({ navigation }) => {
   const { login } = useContext(AuthContext); // Usa la función de login del contexto
