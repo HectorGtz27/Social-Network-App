@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { AuthContext } from "./AuthContext"; // Obtener el contexto de autenticación
 import axios from "axios";
+import { useFocusEffect } from "@react-navigation/native"; // Importar useFocusEffect
 
 const HomeScreen = ({ navigation }) => {
   const { authToken } = useContext(AuthContext); // Obtener el token del contexto
@@ -39,10 +40,12 @@ const HomeScreen = ({ navigation }) => {
     }
   };
 
-  // Cargar los posts cuando la pantalla se carga
-  useEffect(() => {
-    fetchPosts();
-  }, []);
+  // Refrescar los posts cada vez que se vuelve a la pantalla Home
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchPosts(); // Cargar los posts cada vez que la pantalla tiene foco
+    }, [])
+  );
 
   // Editar un post existente con PATCH
   const handleEditPost = async () => {
