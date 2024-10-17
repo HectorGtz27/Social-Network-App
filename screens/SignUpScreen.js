@@ -7,6 +7,8 @@ import {
   StyleSheet,
   ActivityIndicator,
   Alert,
+  Platform,
+  KeyboardAvoidingView,
 } from "react-native";
 import { signUp } from "../services/ApiService"; // Importar la función de ApiService
 
@@ -57,7 +59,10 @@ const SignUpScreen = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"} // Ajusta el comportamiento en función de la plataforma
+      style={styles.container}
+    >
       <Text style={styles.headerSignUp}>Create an Account</Text>
 
       <TextInput
@@ -100,7 +105,7 @@ const SignUpScreen = ({ navigation }) => {
           <Text style={styles.loginLinkText}>Login</Text>
         </Text>
       </TouchableOpacity>
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 

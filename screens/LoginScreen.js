@@ -1,12 +1,13 @@
 import React, { useState, useContext } from "react";
 import {
-  View,
   TextInput,
   Alert,
   Text,
   TouchableOpacity,
+  KeyboardAvoidingView,
   StyleSheet,
   ActivityIndicator,
+  Platform,
 } from "react-native";
 import { AuthContext } from "../contexts/AuthContext";
 import { login as loginService } from "../services/ApiService"; // Importar la función de login de ApiService
@@ -58,7 +59,10 @@ const LoginScreen = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"} // Ajusta el comportamiento en función de la plataforma
+      style={styles.container}
+    >
       <Text style={styles.headerLogin}>Welcome Back!</Text>
       <TextInput
         placeholder="Email"
@@ -91,7 +95,7 @@ const LoginScreen = ({ navigation }) => {
           <Text style={styles.signLinkText}>Sign Up</Text>
         </Text>
       </TouchableOpacity>
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 
