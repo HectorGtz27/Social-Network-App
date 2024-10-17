@@ -1,43 +1,34 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import {
-  View,
   TextInput,
   Alert,
   Text,
   TouchableOpacity,
+  KeyboardAvoidingView,
   StyleSheet,
   ActivityIndicator,
+  Platform,
 } from "react-native";
-import axios from "axios";
+import { AuthContext } from "../contexts/AuthContext";
+import { login as loginService } from "../services/ApiService"; // Importar la función de login de ApiService
 
 const LoginScreen = ({ navigation }) => {
+  const { login } = useContext(AuthContext); // Usa la función de login del contexto
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false); // Estado para el indicador de carga
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleLogin = async () => {
-    setIsLoading(true); // Mostrar el indicador de carga
+    setIsLoading(true);
     try {
-      const response = await axios.post(
-        "https://social-network-v7j7.onrender.com/api/auth/login",
-        {
-          email: email,
-          password: password,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await loginService(email, password); // Llamar a la función de login de ApiService
 
       if (response.data.token) {
+        login(response.data.token); // Guardar el token en el contexto
         Alert.alert("Success", `Welcome back, ${response.data.username}!`, [
           { text: "OK" },
         ]);
-        navigation.navigate("Home"); // Redirigir al HomeScreen si el inicio de sesión es exitoso
-        console.log("Token:", response.data.token);
-        console.log("User ID:", response.data.userId);
+        navigation.navigate("Home");
       }
     } catch (error) {
       if (error.response) {
@@ -63,12 +54,15 @@ const LoginScreen = ({ navigation }) => {
         );
       }
     } finally {
-      setIsLoading(false); // Ocultar el indicador de carga cuando se complete la solicitud
+      setIsLoading(false);
     }
   };
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"} // Ajusta el comportamiento en función de la plataforma
+      style={styles.container}
+    >
       <Text style={styles.headerLogin}>Welcome Back!</Text>
       <TextInput
         placeholder="Email"
@@ -87,7 +81,7 @@ const LoginScreen = ({ navigation }) => {
       <TouchableOpacity
         style={styles.loginButton}
         onPress={handleLogin}
-        disabled={isLoading} // Desactivar el botón mientras está cargando
+        disabled={isLoading}
       >
         {isLoading ? (
           <ActivityIndicator size="small" color="#fff" />
@@ -101,7 +95,7 @@ const LoginScreen = ({ navigation }) => {
           <Text style={styles.signLinkText}>Sign Up</Text>
         </Text>
       </TouchableOpacity>
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 
