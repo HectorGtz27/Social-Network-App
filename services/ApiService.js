@@ -128,3 +128,20 @@ export const fetchFollowingPosts = async (token, page = 1, limit = 10) => {
       },
     });
   };
+
+  export const followUser = async (userId, token) => {
+    return axios.put(`${API_URL}/users/${userId}/follow`, {}, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  };
+  
+ 
+  export const unfollowUser = async (userId, token) => {
+    return axios.delete(`${API_URL}/users/${userId}/follow`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  };
