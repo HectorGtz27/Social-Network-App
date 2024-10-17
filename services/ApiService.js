@@ -38,6 +38,31 @@ export const fetchPosts = async (token) => {
   });
 };
 
+// Obtener la informacion del usuario 
+export const fetchUserInfo = async (userId, token) => {
+  const response = await axios.get(`${API_URL}/users/${userId}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};
+
+// Obtener los posts de un usuario
+export const fetchUserPosts = async (userId, token, page = 1, limit = 10) => {
+  const response = await axios.get(
+    `${API_URL}/users/${userId}/posts?page=${page}&limit=${limit}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  return response.data;
+};
+
 // Crear un nuevo post
 export const createPost = async (content, token) => {
   return axios.post(

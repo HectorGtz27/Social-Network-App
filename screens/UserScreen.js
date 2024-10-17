@@ -3,7 +3,8 @@ import {
   View, Text, FlatList, ActivityIndicator, 
   StyleSheet, TouchableOpacity 
 } from "react-native";
-import { AuthContext } from "./AuthContext"; // Importar el contexto
+import { fetchUserInfo, fetchUserPosts } from "../services/ApiService";
+import { AuthContext } from "../contexts/AuthContext";
 
 const UserScreen = ({ route, navigation }) => {
   const { authToken } = useContext(AuthContext); // Acceder al token desde el contexto
@@ -15,42 +16,12 @@ const UserScreen = ({ route, navigation }) => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        // Solicitar información del usuario
-        const userResponse = await fetch(
-          `https://social-network-v7j7.onrender.com/api/users/${userId}`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${authToken}`, // Usar token dinámicamente
-            },
-          }
-        );
-
-        if (!userResponse.ok) {
-          throw new Error("Error al obtener la información del usuario");
-        }
-
-        const userData = await userResponse.json();
+        // Llamar a la API para obtener la información del usuario
+        const userData = await fetchUserInfo(userId, authToken);
         setUserInfo(userData);
 
-        // Solicitar posts del usuario
-        const postsResponse = await fetch(
-          `https://social-network-v7j7.onrender.com/api/users/${userId}/posts?page=1&limit=10`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${authToken}`, // Usar token dinámicamente
-            },
-          }
-        );
-
-        if (!postsResponse.ok) {
-          throw new Error("Error al obtener los posts del usuario");
-        }
-
-        const postsData = await postsResponse.json();
+        // Llamar a la API para obtener los posts del usuario
+        const postsData = await fetchUserPosts(userId, authToken);
         setUserPosts(postsData);
       } catch (error) {
         console.error("Error en la solicitud:", error);

@@ -3,7 +3,9 @@ import {
   View, Text, FlatList, ActivityIndicator, 
   StyleSheet, TouchableOpacity 
 } from "react-native";
-import { AuthContext } from "./AuthContext"; // Importar el contexto
+import { fetchPosts } from "../services/ApiService";
+import { AuthContext } from "../contexts/AuthContext"; // Importar el contexto
+
 
 const PostsScreen = ({ navigation }) => {
   const { authToken } = useContext(AuthContext); // Acceder al token desde el contexto
@@ -11,34 +13,19 @@ const PostsScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchPosts = async () => {
+    const loadPosts = async () => {
       try {
-        const response = await fetch(
-          `https://social-network-v7j7.onrender.com/api/posts?page=1&limit=10`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${authToken}`, // Usar el token dinámicamente
-            },
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error("Error al obtener los posts");
-        }
-
-        const data = await response.json();
-        setPosts(data);
+        const response = await fetchPosts(authToken); // Usar fetchPosts con el token
+        setPosts(response.data); // Guardar los posts en el estado
       } catch (error) {
-        console.error("Error en la solicitud:", error);
+        console.error("Error al obtener los posts:", error);
       } finally {
         setLoading(false);
       }
     };
-
+  
     if (authToken) {
-      fetchPosts(); // Solo llamar si el token está disponible
+      loadPosts(); // Solo llamar si el token está disponible
     }
   }, [authToken]);
 
