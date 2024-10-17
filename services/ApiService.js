@@ -99,3 +99,23 @@ export const deletePost = async (postId, token) => {
     },
   });
 };
+
+// Dar Like a un post
+export const likePost = async (postId, token) => {
+  return axios.put(`${API_URL}/posts/${postId}/like`, {}, {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+// Quitar Like (Unlike) a un post
+export const unlikePost = async (postId, token) => {
+  return axios.delete(`${API_URL}/posts/${postId}/like`, {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};

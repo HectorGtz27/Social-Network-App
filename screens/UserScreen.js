@@ -1,14 +1,14 @@
 import React, { useEffect, useState, useContext } from "react";
 import { 
   View, Text, FlatList, ActivityIndicator, 
-  StyleSheet, TouchableOpacity 
+  StyleSheet, TouchableOpacity, Image 
 } from "react-native";
-import { fetchUserInfo, fetchUserPosts } from "../services/ApiService";
+import { fetchUserInfo, fetchUserPosts, likePost, unlikePost } from "../services/ApiService";
 import { AuthContext } from "../contexts/AuthContext";
 
 const UserScreen = ({ route, navigation }) => {
-  const { authToken } = useContext(AuthContext); // Acceder al token desde el contexto
-  const { userId } = route.params; // Recibir el userId desde la navegación
+  const { authToken, userId } = useContext(AuthContext); 
+  const { userId: profileUserId } = route.params;
   const [userInfo, setUserInfo] = useState(null);
   const [userPosts, setUserPosts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -16,12 +16,10 @@ const UserScreen = ({ route, navigation }) => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        // Llamar a la API para obtener la información del usuario
-        const userData = await fetchUserInfo(userId, authToken);
+        const userData = await fetchUserInfo(profileUserId, authToken);
         setUserInfo(userData);
 
-        // Llamar a la API para obtener los posts del usuario
-        const postsData = await fetchUserPosts(userId, authToken);
+        const postsData = await fetchUserPosts(profileUserId, authToken);
         setUserPosts(postsData);
       } catch (error) {
         console.error("Error en la solicitud:", error);
@@ -30,19 +28,62 @@ const UserScreen = ({ route, navigation }) => {
       }
     };
 
-    if (authToken) {
-      fetchUserData();
+    if (authToken) fetchUserData();
+  }, [authToken, profileUserId]);
+
+  const handleLikeToggle = async (post) => {
+    const isLiked = post.liked;
+    try {
+      if (isLiked) {
+        await unlikePost(post.id, authToken);
+      } else {
+        await likePost(post.id, authToken);
+      }
+
+      setUserPosts((prevPosts) =>
+        prevPosts.map((p) =>
+          p.id === post.id
+            ? { ...p, liked: !isLiked, likes: Math.max(0, p.likes + (isLiked ? -1 : 1)) }
+            : p
+        )
+      );
+    } catch (error) {
+      console.error("Error al cambiar el estado del like:", error);
     }
-  }, [authToken, userId]);
+  };
 
   const renderPost = ({ item }) => (
-    <View style={styles.postContainer}>
+    <TouchableOpacity
+      style={styles.postContainer}
+      onPress={() =>
+        item.user_id === userId
+          ? navigation.navigate("User", { userId }) 
+          : navigation.navigate("User", { userId: item.user_id })
+      }
+    >
+      <Text style={styles.username}>{item.username}</Text>
       <Text style={styles.content}>{item.content}</Text>
       <Text style={styles.timestamp}>
         {new Date(item.created_at).toLocaleString()}
       </Text>
-    </View>
+      <View style={styles.likesContainer}>
+        <TouchableOpacity onPress={() => handleLikeToggle(item)}>
+          <Image
+            source={
+              item.liked
+                ? require("../assets/like.png")
+                : require("../assets/unlike.png")
+            }
+            style={styles.likeImage}
+          />
+        </TouchableOpacity>
+        <Text style={styles.likesCount}>
+          {item.likes > 0 ? `${item.likes} ${item.likes === 1 ? 'Like' : 'Likes'}` : '0 Likes'}
+        </Text>
+      </View>
+    </TouchableOpacity>
   );
+  
 
   if (loading) {
     return <ActivityIndicator size="large" color="black" />;
@@ -77,8 +118,7 @@ const UserScreen = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "#f2f2f2",
   },
   userInfoContainer: {
     marginBottom: 24,
@@ -86,29 +126,43 @@ const styles = StyleSheet.create({
   },
   username: {
     fontWeight: "bold",
-    fontSize: 24,
-    marginBottom: 8,
+    fontSize: 16,
+    marginBottom: 4,
   },
   postsContainer: {
-    paddingBottom: 16,
+    padding: 16,
   },
   postContainer: {
     backgroundColor: "#FFFFFF",
     marginBottom: 16,
-    padding: 12,
-    borderRadius: 8,
+    padding: 15,
+    borderRadius: 10,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3, // Sombra para Android
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 8,
   },
   content: {
-    fontSize: 16,
-    marginBottom: 8,
+    fontSize: 14,
+    marginBottom: 5,
   },
   timestamp: {
     fontSize: 12,
+    color: "gray",
+  },
+  likesContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 10,
+  },
+  likeImage: {
+    width: 18,
+    height: 18,
+    marginRight: 5,
+  },
+  likesCount: {
+    fontSize: 14,
     color: "gray",
   },
   errorContainer: {
