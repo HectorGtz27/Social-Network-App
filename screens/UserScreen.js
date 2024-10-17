@@ -17,6 +17,7 @@ const UserScreen = ({ route, navigation }) => {
     fetchUserData();
   }, [authToken, profileUserId]);
 
+  
   const fetchUserData = async () => {
     try {
       const userData = await fetchUserInfo(profileUserId, authToken);

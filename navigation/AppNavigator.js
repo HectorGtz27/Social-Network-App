@@ -8,6 +8,7 @@ import LoginScreen from "../screens/LoginScreen";
 import SignUpScreen from "../screens/SignUpScreen";
 import ShareScreen from "../screens/ShareScreen";
 import PostsScreen from "../screens/PostsScreen";
+import ProfileScreen from "../screens/ProfileScreen";
 import UserScreen from "../screens/UserScreen";
 import { Ionicons } from "@expo/vector-icons";
 
@@ -38,7 +39,7 @@ const MainTabs = () => {
       >
         <Tab.Screen name="Home" component={PostsScreen} />
         <Tab.Screen name="Following" component={FollowingScreen} />
-        <Tab.Screen name="Profile" component={UserScreen} /> 
+        <Tab.Screen name="Profile" component={ProfileScreen} /> 
       </Tab.Navigator>
     );
   };
