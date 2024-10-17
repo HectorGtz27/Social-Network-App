@@ -12,7 +12,7 @@ import axios from "axios";
 import { AuthContext } from "./AuthContext";
 
 const HomeScreen = () => {
-  const { authToken } = useContext(AuthContext); // Obtener el token del contexto
+  const { authToken } = useContext(AuthContext);
   const [content, setContent] = useState("");
   const [posts, setPosts] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -27,7 +27,7 @@ const HomeScreen = () => {
         {
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${authToken}`, // Usar el token de autenticación
+            Authorization: `Bearer ${authToken}`,
           },
         }
       );
@@ -42,24 +42,26 @@ const HomeScreen = () => {
     }
   };
 
-  // Editar un post existente
+  // Editar un post existente con PATCH
   const handleEditPost = async () => {
     if (!editPostId) return;
     setIsLoading(true);
     try {
-      await axios.put(
+      const response = await axios.patch(
         `https://social-network-v7j7.onrender.com/api/posts/${editPostId}`,
         { content },
         {
           headers: {
             "Content-Type": "application/json",
-            Authorization: "Bearer {your_token_here}", // Reemplazar con el token de autenticación
+            Authorization: `Bearer ${authToken}`,
           },
         }
       );
       setPosts(
         posts.map((post) =>
-          post.id === editPostId ? { ...post, content } : post
+          post.id === editPostId
+            ? { ...post, content: response.data.content }
+            : post
         )
       );
       setContent("");
@@ -73,7 +75,7 @@ const HomeScreen = () => {
     }
   };
 
-  // Borrar un post
+  // Borrar un post existente con DELETE
   const handleDeletePost = async (postId) => {
     setIsLoading(true);
     try {
@@ -81,7 +83,7 @@ const HomeScreen = () => {
         `https://social-network-v7j7.onrender.com/api/posts/${postId}`,
         {
           headers: {
-            Authorization: "Bearer {your_token_here}", // Reemplazar con el token de autenticación
+            Authorization: `Bearer ${authToken}`,
           },
         }
       );
