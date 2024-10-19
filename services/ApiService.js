@@ -30,12 +30,11 @@ export const signUp = async (username, email, password) => {
 };
 
 // Obtener todos los posts
-export const fetchPosts = async (token, page = 1, limit = 50) => {
-  return axios.get(`${API_URL}/posts?page=${page}&limit=${limit}`, {
+export const fetchPosts = async (token) => {
+  return axios.get(`${API_URL}/posts`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
-
   });
 };
 
@@ -51,7 +50,7 @@ export const fetchUserInfo = async (userId, token) => {
 };
 
 // Obtener los posts de un usuario
-export const fetchUserPosts = async (userId, token, page = 1, limit = 20) => {
+export const fetchUserPosts = async (userId, token, page = 1, limit = 10) => {
   const response = await axios.get(
     `${API_URL}/users/${userId}/posts?page=${page}&limit=${limit}`,
     {
@@ -103,36 +102,46 @@ export const deletePost = async (postId, token) => {
 
 // Dar Like a un post
 export const likePost = async (postId, token) => {
-  console.log(`Llamando a la API: LIKE para el post con ID ${postId}`);
-  try {
-    const response = await axios.put(`${API_URL}/posts/${postId}/like`, {}, {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    console.log(`Respuesta de la API LIKE:`, response.data); // Verifica respuesta de la API
-    return response.data;
-  } catch (error) {
-    console.error(`Error en la API LIKE para el post ${postId}:`, error);
-    throw error;
-  }
+  return axios.put(`${API_URL}/posts/${postId}/like`, {}, {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+  });
 };
 
 // Quitar Like (Unlike) a un post
 export const unlikePost = async (postId, token) => {
-  console.log(`Llamando a la API: UNLIKE para el post con ID ${postId}`);
-  try {
-    const response = await axios.delete(`${API_URL}/posts/${postId}/like`, {
+  return axios.delete(`${API_URL}/posts/${postId}/like`, {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const fetchFollowingPosts = async (token, page = 1, limit = 10) => {
+    return axios.get(`${API_URL}/feed?page=${page}&limit=${limit}`, {
       headers: {
-        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+  };
+
+  export const followUser = async (userId, token) => {
+    return axios.put(`${API_URL}/users/${userId}/follow`, {}, {
+      headers: {
         Authorization: `Bearer ${token}`,
       },
     });
-    console.log(`Respuesta de la API UNLIKE:`, response.data); // Verifica respuesta de la API
-    return response.data;
-  } catch (error) {
-    console.error(`Error en la API UNLIKE para el post ${postId}:`, error);
-    throw error;
-  }
-};
+  };
+  
+ 
+  export const unfollowUser = async (userId, token) => {
+    return axios.delete(`${API_URL}/users/${userId}/follow`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  };

@@ -1,115 +1,99 @@
 import React, { useEffect, useState, useContext } from "react";
-import { 
-  View, Text, FlatList, ActivityIndicator, 
-  StyleSheet, TouchableOpacity, Image 
-} from "react-native";
-import { fetchUserInfo, fetchUserPosts, likePost, unlikePost } from "../services/ApiService";
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, Alert, ActivityIndicator } from "react-native";
 import { AuthContext } from "../contexts/AuthContext";
+import { fetchUserInfo, fetchUserPosts, followUser, unfollowUser } from "../services/ApiService";
 
 const UserScreen = ({ route, navigation }) => {
-  const { authToken, userId } = useContext(AuthContext); 
-  const { userId: profileUserId } = route.params;
+  const { authToken, userId } = useContext(AuthContext);
+  const profileUserId = route?.params?.userId || userId;
+
   const [userInfo, setUserInfo] = useState(null);
   const [userPosts, setUserPosts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isFollowing, setIsFollowing] = useState(false);
 
-  useEffect(() => {
-    fetchUserData();
-  }, [authToken, profileUserId]);
-
-  const fetchUserData = async () => {
+  const loadUserData = async () => {
+    setLoading(true);
     try {
-      const userData = await fetchUserInfo(profileUserId, authToken);
-      setUserInfo(userData);
-
-      const postsData = await fetchUserPosts(profileUserId, authToken);
-      setUserPosts(postsData);
+      const userInfoResponse = await fetchUserInfo(profileUserId, authToken);
+      setUserInfo(userInfoResponse);
+      setIsFollowing(userInfoResponse.is_following); // Actualiza el estado de seguimiento
+      const userPostsResponse = await fetchUserPosts(profileUserId, authToken);
+      setUserPosts(userPostsResponse);
     } catch (error) {
-      console.error("Error en la solicitud:", error);
+      console.error("Error al obtener la información del usuario:", error);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleLikeToggle = async (post) => {
-    const isLiked = post.liked;
-    try {
-      if (isLiked) {
-        await unlikePost(post.id, authToken);
-      } else {
-        await likePost(post.id, authToken);
-      }
+  useEffect(() => {
+    loadUserData();
+  }, [profileUserId]);
 
-      // Actualizar la lista de posts para reflejar los cambios
-      setUserPosts((prevPosts) =>
-        prevPosts.map((p) =>
-          p.id === post.id
-            ? { ...p, liked: !isLiked, likes: Math.max(0, p.likes + (isLiked ? -1 : 1)) }
-            : p
-        )
-      );
+  const handleFollowToggle = async () => {
+    try {
+      if (isFollowing) {
+        await unfollowUser(profileUserId, authToken);
+        setIsFollowing(false);
+        Alert.alert("Unfollowed", `You have unfollowed ${userInfo.username}.`);
+      } else {
+        await followUser(profileUserId, authToken);
+        setIsFollowing(true);
+        Alert.alert("Followed", `You are now following ${userInfo.username}.`);
+      }
     } catch (error) {
-      console.error("Error al cambiar el estado del like:", error);
+      console.error("Error al cambiar el estado de seguimiento:", error);
+      Alert.alert("Error", "No se pudo actualizar el estado de seguimiento.");
     }
   };
 
   const renderPost = ({ item }) => (
-    <TouchableOpacity
-      style={styles.postContainer}
-      onPress={() =>
-        item.user_id === userId
-          ? navigation.navigate("User", { userId }) 
-          : navigation.navigate("User", { userId: item.user_id })
-      }
-    >
-      <Text style={styles.username}>{item.username}</Text>
-      <Text style={styles.content}>{item.content}</Text>
-      <Text style={styles.timestamp}>
-        {new Date(item.created_at).toLocaleString()}
-      </Text>
-      <View style={styles.likesContainer}>
-        <TouchableOpacity onPress={() => handleLikeToggle(item)}>
-          <Image
-            source={
-              item.liked
-                ? require("../assets/like.png")
-                : require("../assets/unlike.png")
-            }
-            style={styles.likeImage}
-          />
-        </TouchableOpacity>
-        <Text style={styles.likesCount}>
-          {item.likes > 0 ? `${item.likes} ${item.likes === 1 ? 'Like' : 'Likes'}` : '0 Likes'}
-        </Text>
+    <View style={styles.postContainer}>
+    <View style={styles.userInfo}>
+      <View style={styles.avatarpost}>
+        <Text style={styles.avatarTextPost}>{userInfo.username.charAt(0)}</Text>
       </View>
-    </TouchableOpacity>
+      <View style={styles.postDetails}>
+        <Text style={styles.postUsername}>{userInfo.username}</Text>
+        <Text style={styles.content}>{item.content}</Text>
+      </View>
+    </View>
+    <Text style={styles.likes}>{item.likes.length} {item.likes.length === 1 ? "like" : "likes"}</Text>
+  </View>
   );
 
   if (loading) {
-    return <ActivityIndicator size="large" color="black" />;
-  }
-
-  if (!userInfo) {
-    return (
-      <View style={styles.errorContainer}>
-        <Text>Error al cargar la información del usuario.</Text>
-      </View>
-    );
+    return <ActivityIndicator size="large" color="#007bff" style={styles.loading} />;
   }
 
   return (
     <View style={styles.container}>
-      <View style={styles.userInfoContainer}>
-        <Text style={styles.username}>{userInfo.username}</Text>
-        <Text>Seguidores: {userInfo.follower_count}</Text>
-        <Text>Seguidos: {userInfo.following_count}</Text>
-      </View>
+      {userInfo && (
+        <View style={styles.profileContainer}>
+          <View style={styles.avatar}>
+            <Text style={styles.avatarText}>{userInfo.username.charAt(0)}</Text>
+          </View>
+          <Text style={styles.username}>{userInfo.username}</Text>
+          <Text style={styles.followInfo}>
+            Followers: {userInfo.follower_count} | Following: {userInfo.following_count}
+          </Text>
+          <TouchableOpacity
+            style={[styles.followButton, isFollowing ? styles.unfollowButton : styles.followButton]}
+            onPress={handleFollowToggle}
+          >
+            <Text style={styles.followButtonText}>{isFollowing ? "Unfollow" : "Follow"}</Text>
+          </TouchableOpacity>
+        </View>
+      )}
 
+      <Text style={styles.postsHeader}>Posts</Text>
       <FlatList
         data={userPosts}
         keyExtractor={(item) => item.id.toString()}
         renderItem={renderPost}
         contentContainerStyle={styles.postsContainer}
+        ListFooterComponent={<Text style={styles.noMorePosts}>No more posts</Text>}
       />
     </View>
   );
@@ -118,57 +102,105 @@ const UserScreen = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f2f2f2",
-  },
-  userInfoContainer: {
-    marginBottom: 24,
-    alignItems: "center",
-  },
-  username: {
-    fontWeight: "bold",
-    fontSize: 16,
-    marginBottom: 4,
-  },
-  postsContainer: {
+    backgroundColor: "#f5f5f5",
     padding: 16,
   },
-  postContainer: {
-    backgroundColor: "#FFFFFF",
-    marginBottom: 16,
-    padding: 15,
-    borderRadius: 10,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 5,
-    elevation: 8,
-  },
-  content: {
-    fontSize: 14,
-    marginBottom: 5,
-  },
-  timestamp: {
-    fontSize: 12,
-    color: "gray",
-  },
-  likesContainer: {
-    flexDirection: "row",
+  profileContainer: {
     alignItems: "center",
+    marginBottom: 20,
+  },
+  avatar: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: "#d4a017", 
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 10,
+  },
+  avatarpost:{
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#d4a017",
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 10,
+  },
+  avatarText: {
+    color: "#fff",
+    fontSize: 36,
+    fontWeight: "bold",
+  },
+  avatarTextPost: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  userInfo: {
+    flexDirection: "row",  // Alinear avatar y detalles del post en una fila
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  postDetails: {
+    flex: 1, 
+  },
+  username: {
+    fontSize: 2, 
+    fontWeight: "bold",
+  },
+  followInfo: {
+    fontSize: 16,
+    color: "gray",
+    marginVertical: 5,
+  },
+  followButton: {
+    backgroundColor: "#007bff",
+    paddingVertical: 8,
+    paddingHorizontal: 20,
+    borderRadius: 5,
     marginTop: 10,
   },
-  likeImage: {
-    width: 18,
-    height: 18,
-    marginRight: 5,
+  unfollowButton: {
+    backgroundColor: "#aaa",
   },
-  likesCount: {
+  followButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
+  },
+  postsHeader: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+  postsContainer: {
+    paddingBottom: 20,
+  },
+  postContainer: {
+    backgroundColor: "#fff",
+    padding: 15,
+    borderRadius: 8,
+    marginBottom: 10,
+    borderColor: "#ddd",
+    borderWidth: 1,
+  },
+  postUsername: { 
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 4,
+  },
+  content: {
+    fontSize: 16,
+    marginBottom: 10,
+  },
+  likes: {
     fontSize: 14,
     color: "gray",
   },
-  errorContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+  noMorePosts: {
+    textAlign: "center",
+    color: "gray",
+    marginTop: 10,
   },
 });
 
