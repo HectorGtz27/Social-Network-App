@@ -30,33 +30,39 @@ const PostsScreen = ({ navigation }) => {
     if (authToken) loadPosts();
   }, [authToken]);
 
-  // Manejar Like y Unlike sin alertas
   const handleLikeToggle = async (post) => {
     const isLiked = post.liked;
+    console.log(`Estado inicial del post ${post.id}: ${isLiked ? "Liked" : "Unliked"}`);
+  
     try {
       if (isLiked) {
+        console.log(`Deshaciendo like del post con ID: ${post.id}`);
         await unlikePost(post.id, authToken);
       } else {
+        console.log(`Dando like al post con ID: ${post.id}`);
         await likePost(post.id, authToken);
       }
-
-      // Actualizar el estado del post con el nuevo estado de like
+  
+      // Asegura que 'likes' sea un número
       setPosts((prevPosts) =>
         prevPosts.map((p) =>
           p.id === post.id
             ? {
                 ...p,
                 liked: !isLiked,
-                likes: Math.max(0, p.likes + (isLiked ? -1 : 1)), // Evitar negativos
+                likes: Number(p.likes) + (isLiked ? -1 : 1), // Convirtiendo explícitamente a número
               }
             : p
         )
       );
+  
+      console.log(`Estado actualizado del post ${post.id}: ${!isLiked ? "Liked" : "Unliked"}`);
     } catch (error) {
       console.error("Error al cambiar el estado del like:", error);
     }
   };
-
+  
+  
   const renderPost = ({ item }) => (
     <TouchableOpacity
       style={styles.postContainer}

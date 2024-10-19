@@ -30,11 +30,12 @@ export const signUp = async (username, email, password) => {
 };
 
 // Obtener todos los posts
-export const fetchPosts = async (token) => {
-  return axios.get(`${API_URL}/posts`, {
+export const fetchPosts = async (token, page = 1, limit = 50) => {
+  return axios.get(`${API_URL}/posts?page=${page}&limit=${limit}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
+
   });
 };
 
@@ -50,7 +51,7 @@ export const fetchUserInfo = async (userId, token) => {
 };
 
 // Obtener los posts de un usuario
-export const fetchUserPosts = async (userId, token, page = 1, limit = 10) => {
+export const fetchUserPosts = async (userId, token, page = 1, limit = 20) => {
   const response = await axios.get(
     `${API_URL}/users/${userId}/posts?page=${page}&limit=${limit}`,
     {
@@ -102,20 +103,36 @@ export const deletePost = async (postId, token) => {
 
 // Dar Like a un post
 export const likePost = async (postId, token) => {
-  return axios.put(`${API_URL}/posts/${postId}/like`, {}, {
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  console.log(`Llamando a la API: LIKE para el post con ID ${postId}`);
+  try {
+    const response = await axios.put(`${API_URL}/posts/${postId}/like`, {}, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    console.log(`Respuesta de la API LIKE:`, response.data); // Verifica respuesta de la API
+    return response.data;
+  } catch (error) {
+    console.error(`Error en la API LIKE para el post ${postId}:`, error);
+    throw error;
+  }
 };
 
 // Quitar Like (Unlike) a un post
 export const unlikePost = async (postId, token) => {
-  return axios.delete(`${API_URL}/posts/${postId}/like`, {
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  console.log(`Llamando a la API: UNLIKE para el post con ID ${postId}`);
+  try {
+    const response = await axios.delete(`${API_URL}/posts/${postId}/like`, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    console.log(`Respuesta de la API UNLIKE:`, response.data); // Verifica respuesta de la API
+    return response.data;
+  } catch (error) {
+    console.error(`Error en la API UNLIKE para el post ${postId}:`, error);
+    throw error;
+  }
 };
