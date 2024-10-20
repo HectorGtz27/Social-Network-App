@@ -13,22 +13,20 @@ const UserScreen = ({ route, navigation }) => {
   const [loading, setLoading] = useState(true);
   const [isFollowing, setIsFollowing] = useState(false);
 
-  // Función para generar un color de avatar basado en el nombre de usuario
-// Función para generar un color basado en el nombre de usuario
-const getAvatarColor = (username) => {
-  let hash = 0;
-  for (let i = 0; i < username.length; i++) {
-    hash = username.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  
-  // Convertir el hash a un valor RGB
-  const r = (hash >> 16) & 0xff;
-  const g = (hash >> 8) & 0xff;
-  const b = hash & 0xff;
+  // Función para generar un color basado en el nombre de usuario
+  const getAvatarColor = (username) => {
+    let hash = 0;
+    for (let i = 0; i < username.length; i++) {
+      hash = username.charCodeAt(i) + ((hash << 5) - hash);
+    }
 
-  return `rgb(${r}, ${g}, ${b})`;
-};
+    // Convertir el hash a un valor RGB
+    const r = (hash >> 16) & 0xff;
+    const g = (hash >> 8) & 0xff;
+    const b = hash & 0xff;
 
+    return `rgb(${r}, ${g}, ${b})`;
+  };
 
   const loadUserData = async () => {
     setLoading(true);
@@ -70,8 +68,8 @@ const getAvatarColor = (username) => {
   const renderPost = ({ item }) => (
     <View style={styles.postContainer}>
       <View style={styles.userInfo}>
-        <View style={[styles.avatar, { backgroundColor: getAvatarColor(userInfo.username) }]}>
-          <Text style={styles.avatarText}>{userInfo.username.charAt(0)}</Text>
+        <View style={[styles.postAvatar, { backgroundColor: getAvatarColor(userInfo.username) }]}>
+          <Text style={styles.postAvatarText}>{userInfo.username.charAt(0)}</Text>
         </View>
         <View style={styles.postDetails}>
           <Text style={styles.postUsername}>{userInfo.username}</Text>
@@ -90,8 +88,8 @@ const getAvatarColor = (username) => {
     <View style={styles.container}>
       {userInfo && (
         <View style={styles.profileContainer}>
-          <View style={[styles.avatar, { backgroundColor: getAvatarColor(userInfo.username) }]}>
-            <Text style={styles.avatarText}>{userInfo.username.charAt(0)}</Text>
+          <View style={[styles.profileAvatar, { backgroundColor: getAvatarColor(userInfo.username) }]}>
+            <Text style={styles.profileAvatarText}>{userInfo.username.charAt(0)}</Text>
           </View>
           <Text style={styles.username}>{userInfo.username}</Text>
           <Text style={styles.followInfo}>
@@ -128,18 +126,33 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 20,
   },
-  avatar: {
-    width: 40,
+  profileAvatar: {
+    width: 80, 
+    height: 80,
+    borderRadius: 40,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 10,
+  },
+
+  postAvatar: {
+    width: 40, 
     height: 40,
     borderRadius: 20,
-    backgroundColor: "#d4a017",
     alignItems: "center",
     justifyContent: "center",
     marginRight: 10,
   },
-  avatarText: {
+  
+  profileAvatarText: {
     color: "#fff",
-    fontSize: 20,
+    fontSize: 36, 
+    fontWeight: "bold",
+  },
+
+  postAvatarText: {
+    color: "#fff",
+    fontSize: 18, 
     fontWeight: "bold",
   },
   username: {
@@ -174,23 +187,24 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   postContainer: {
-    backgroundColor: "#fff",
+    backgroundColor: "#FFFFFF",
+    marginBottom: 16,
     padding: 15,
-    borderRadius: 8,
-    marginBottom: 10,
-    borderColor: "#ddd",
-    borderWidth: 1,
+    borderRadius: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    elevation: 8,
   },
   userInfo: {
     flexDirection: "row",
     alignItems: "center",
   },
-  avatarText: {
-    color: "#fff",
-    fontSize: 18,
-    fontWeight: "bold",
+  postDetails: {
+    flex: 1,
   },
-  postUsername: { 
+  postUsername: {
     fontSize: 16,
     fontWeight: "bold",
     marginBottom: 4,
@@ -207,6 +221,11 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: "gray",
     marginTop: 10,
+  },
+  loading: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
 
