@@ -3,6 +3,7 @@ import { View, Text, FlatList, StyleSheet, TouchableOpacity, Alert, ActivityIndi
 import { AuthContext } from "../contexts/AuthContext";
 import { fetchUserInfo, fetchUserPosts, followUser, unfollowUser } from "../services/ApiService";
 
+// Reutilizamos la función para obtener el color de avatar
 const UserScreen = ({ route, navigation }) => {
   const { authToken, userId } = useContext(AuthContext);
   const profileUserId = route?.params?.userId || userId;
@@ -12,12 +13,29 @@ const UserScreen = ({ route, navigation }) => {
   const [loading, setLoading] = useState(true);
   const [isFollowing, setIsFollowing] = useState(false);
 
+  // Función para generar un color de avatar basado en el nombre de usuario
+// Función para generar un color basado en el nombre de usuario
+const getAvatarColor = (username) => {
+  let hash = 0;
+  for (let i = 0; i < username.length; i++) {
+    hash = username.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  
+  // Convertir el hash a un valor RGB
+  const r = (hash >> 16) & 0xff;
+  const g = (hash >> 8) & 0xff;
+  const b = hash & 0xff;
+
+  return `rgb(${r}, ${g}, ${b})`;
+};
+
+
   const loadUserData = async () => {
     setLoading(true);
     try {
       const userInfoResponse = await fetchUserInfo(profileUserId, authToken);
       setUserInfo(userInfoResponse);
-      setIsFollowing(userInfoResponse.is_following); 
+      setIsFollowing(userInfoResponse.is_following);
       const userPostsResponse = await fetchUserPosts(profileUserId, authToken);
       setUserPosts(userPostsResponse);
     } catch (error) {
@@ -28,7 +46,7 @@ const UserScreen = ({ route, navigation }) => {
   };
 
   useEffect(() => {
-    loadUserData(); 
+    loadUserData();
   }, [profileUserId]);
 
   const handleFollowToggle = async () => {
@@ -42,9 +60,7 @@ const UserScreen = ({ route, navigation }) => {
         setIsFollowing(true);
         Alert.alert("Followed", `You are now following ${userInfo.username}.`);
       }
-
-      // Después de seguir o dejar de seguir, recargar los datos del usuario
-      await loadUserData(); // Recargar la información del usuario para actualizar los datos en pantalla
+      await loadUserData();
     } catch (error) {
       console.error("Error al cambiar el estado de seguimiento:", error);
       Alert.alert("Error", "No se pudo actualizar el estado de seguimiento.");
@@ -54,7 +70,7 @@ const UserScreen = ({ route, navigation }) => {
   const renderPost = ({ item }) => (
     <View style={styles.postContainer}>
       <View style={styles.userInfo}>
-        <View style={styles.avatar}>
+        <View style={[styles.avatar, { backgroundColor: getAvatarColor(userInfo.username) }]}>
           <Text style={styles.avatarText}>{userInfo.username.charAt(0)}</Text>
         </View>
         <View style={styles.postDetails}>
@@ -74,7 +90,7 @@ const UserScreen = ({ route, navigation }) => {
     <View style={styles.container}>
       {userInfo && (
         <View style={styles.profileContainer}>
-          <View style={styles.avatar}>
+          <View style={[styles.avatar, { backgroundColor: getAvatarColor(userInfo.username) }]}>
             <Text style={styles.avatarText}>{userInfo.username.charAt(0)}</Text>
           </View>
           <Text style={styles.username}>{userInfo.username}</Text>
@@ -113,21 +129,21 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   avatar: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: "#d4a017", 
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#d4a017",
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 10,
+    marginRight: 10,
   },
   avatarText: {
     color: "#fff",
-    fontSize: 36,
+    fontSize: 20,
     fontWeight: "bold",
   },
   username: {
-    fontSize: 26, 
+    fontSize: 26,
     fontWeight: "bold",
   },
   followInfo: {
@@ -169,22 +185,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
   },
-  avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "#6a0dad",
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: 10,
-  },
   avatarText: {
     color: "#fff",
     fontSize: 18,
     fontWeight: "bold",
-  },
-  postDetails: {
-    flex: 1,
   },
   postUsername: { 
     fontSize: 16,

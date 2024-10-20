@@ -2,7 +2,21 @@ import React, { useEffect, useState, useContext } from "react";
 import { View, Text, FlatList, ActivityIndicator, StyleSheet, TouchableOpacity, Image, Alert } from "react-native";
 import { AuthContext } from "../contexts/AuthContext";
 import { fetchFollowingPosts, likePost, unlikePost } from "../services/ApiService";
-import { useFocusEffect } from "@react-navigation/native"; 
+import { useFocusEffect } from "@react-navigation/native";
+
+// Función para generar un color de avatar basado en el nombre de usuario
+const getAvatarColor = (username) => {
+  let hash = 0;
+  for (let i = 0; i < username.length; i++) {
+    hash = username.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  // Convertir el hash a un valor RGB único
+  const r = (hash >> 16) & 0xff;
+  const g = (hash >> 8) & 0xff;
+  const b = hash & 0xff;
+
+  return `rgb(${r}, ${g}, ${b})`;
+};
 
 const FollowingScreen = ({ navigation }) => {
   const { authToken, userId } = useContext(AuthContext);
@@ -22,11 +36,10 @@ const FollowingScreen = ({ navigation }) => {
     }
   };
 
-  
   useFocusEffect(
     React.useCallback(() => {
-      getFollowingPosts(); 
-    }, []) 
+      getFollowingPosts();
+    }, [])
   );
 
   const handleLikeToggle = async (post) => {
@@ -63,7 +76,7 @@ const FollowingScreen = ({ navigation }) => {
       }
     >
       <View style={styles.userInfo}>
-        <View style={styles.avatar}>
+        <View style={[styles.avatar, { backgroundColor: getAvatarColor(item.username) }]}>
           <Text style={styles.avatarText}>{item.username.charAt(0)}</Text>
         </View>
         <View style={styles.postDetails}>
@@ -124,7 +137,7 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   userInfo: {
-    flexDirection: "row", 
+    flexDirection: "row",
     alignItems: "center",
     marginBottom: 8,
   },
@@ -132,7 +145,6 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "#6a0dad",
     alignItems: "center",
     justifyContent: "center",
     marginRight: 10,
@@ -143,7 +155,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   postDetails: {
-    flex: 1,  
+    flex: 1,
   },
   username: {
     fontWeight: "bold",
