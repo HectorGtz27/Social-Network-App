@@ -17,7 +17,7 @@ const UserScreen = ({ route, navigation }) => {
     try {
       const userInfoResponse = await fetchUserInfo(profileUserId, authToken);
       setUserInfo(userInfoResponse);
-      setIsFollowing(userInfoResponse.is_following); // Actualiza el estado de seguimiento
+      setIsFollowing(userInfoResponse.is_following); 
       const userPostsResponse = await fetchUserPosts(profileUserId, authToken);
       setUserPosts(userPostsResponse);
     } catch (error) {
@@ -28,7 +28,7 @@ const UserScreen = ({ route, navigation }) => {
   };
 
   useEffect(() => {
-    loadUserData();
+    loadUserData(); 
   }, [profileUserId]);
 
   const handleFollowToggle = async () => {
@@ -42,6 +42,9 @@ const UserScreen = ({ route, navigation }) => {
         setIsFollowing(true);
         Alert.alert("Followed", `You are now following ${userInfo.username}.`);
       }
+
+      // Después de seguir o dejar de seguir, recargar los datos del usuario
+      await loadUserData(); // Recargar la información del usuario para actualizar los datos en pantalla
     } catch (error) {
       console.error("Error al cambiar el estado de seguimiento:", error);
       Alert.alert("Error", "No se pudo actualizar el estado de seguimiento.");
@@ -50,17 +53,17 @@ const UserScreen = ({ route, navigation }) => {
 
   const renderPost = ({ item }) => (
     <View style={styles.postContainer}>
-    <View style={styles.userInfo}>
-      <View style={styles.avatarpost}>
-        <Text style={styles.avatarTextPost}>{userInfo.username.charAt(0)}</Text>
+      <View style={styles.userInfo}>
+        <View style={styles.avatar}>
+          <Text style={styles.avatarText}>{userInfo.username.charAt(0)}</Text>
+        </View>
+        <View style={styles.postDetails}>
+          <Text style={styles.postUsername}>{userInfo.username}</Text>
+          <Text style={styles.content}>{item.content}</Text>
+        </View>
       </View>
-      <View style={styles.postDetails}>
-        <Text style={styles.postUsername}>{userInfo.username}</Text>
-        <Text style={styles.content}>{item.content}</Text>
-      </View>
+      <Text style={styles.likes}>{item.likes.length} {item.likes.length === 1 ? "like" : "likes"}</Text>
     </View>
-    <Text style={styles.likes}>{item.likes.length} {item.likes.length === 1 ? "like" : "likes"}</Text>
-  </View>
   );
 
   if (loading) {
@@ -118,35 +121,13 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginBottom: 10,
   },
-  avatarpost:{
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "#d4a017",
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: 10,
-  },
   avatarText: {
     color: "#fff",
     fontSize: 36,
     fontWeight: "bold",
   },
-  avatarTextPost: {
-    color: "#fff",
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-  userInfo: {
-    flexDirection: "row",  // Alinear avatar y detalles del post en una fila
-    alignItems: "center",
-    marginBottom: 8,
-  },
-  postDetails: {
-    flex: 1, 
-  },
   username: {
-    fontSize: 2, 
+    fontSize: 26, 
     fontWeight: "bold",
   },
   followInfo: {
@@ -183,6 +164,27 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     borderColor: "#ddd",
     borderWidth: 1,
+  },
+  userInfo: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  avatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#6a0dad",
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 10,
+  },
+  avatarText: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  postDetails: {
+    flex: 1,
   },
   postUsername: { 
     fontSize: 16,

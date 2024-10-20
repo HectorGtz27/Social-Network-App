@@ -1,8 +1,5 @@
 import React, { useEffect, useState, useContext } from "react";
-import {
-    View, Text, FlatList, ActivityIndicator,
-    StyleSheet, TouchableOpacity, TextInput, Image
-} from "react-native";
+import { View, Text, FlatList, ActivityIndicator, StyleSheet, TouchableOpacity, TextInput, Image} from "react-native";
 import { fetchPosts, createPost, updatePost, deletePost, likePost, unlikePost } from "../services/ApiService";
 import { AuthContext } from "../contexts/AuthContext";
 
@@ -13,7 +10,7 @@ const PostsScreen = ({ navigation }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [content, setContent] = useState("");
 
-    // Cargar posts al inicio
+    
     useEffect(() => {
         const loadPosts = async () => {
             setLoading(true);
@@ -30,7 +27,6 @@ const PostsScreen = ({ navigation }) => {
         if (authToken) loadPosts();
     }, [authToken]);
 
-    // Manejar Like y Unlike sin alertas
     const handleLikeToggle = async (post) => {
         const isLiked = post.liked;
         try {
@@ -40,14 +36,13 @@ const PostsScreen = ({ navigation }) => {
                 await likePost(post.id, authToken);
             }
 
-            // Actualizar el estado del post con el nuevo estado de like
             setPosts((prevPosts) =>
                 prevPosts.map((p) =>
                     p.id === post.id
                         ? {
                             ...p,
                             liked: !isLiked,
-                            likes: Math.max(0, p.likes + (isLiked ? -1 : 1)), // Evitar negativos
+                            likes: Math.max(0, p.likes + (isLiked ? -1 : 1)), 
                         }
                         : p
                 )
@@ -174,7 +169,7 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
       },
       postDetails: {
-        flex: 1,  // Ocupa todo el espacio restante después del avatar
+        flex: 1,  
       },
     postsContainer: {
         padding: 16,
