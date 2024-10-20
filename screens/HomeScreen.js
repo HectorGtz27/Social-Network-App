@@ -8,23 +8,22 @@ import {
   Alert,
   TextInput,
 } from "react-native";
-import { AuthContext } from "../contexts/AuthContext"; // Obtener el contexto de autenticación
-import { useFocusEffect } from "@react-navigation/native"; // Importar useFocusEffect
-import { fetchPosts, updatePost, deletePost } from "../services/ApiService"; // Importar funciones de ApiService
+import { AuthContext } from "../contexts/AuthContext"; 
+import { useFocusEffect } from "@react-navigation/native"; 
+import { fetchPosts, updatePost, deletePost } from "../services/ApiService"; 
 
 const HomeScreen = ({ navigation }) => {
-  const { authToken } = useContext(AuthContext); // Obtener el token del contexto
+  const { authToken } = useContext(AuthContext); 
   const [posts, setPosts] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [editPostId, setEditPostId] = useState(null);
   const [content, setContent] = useState("");
 
-  // Función para obtener los posts al cargar la pantalla
   const getPosts = async () => {
     setIsLoading(true);
     try {
-      const response = await fetchPosts(authToken); // Llamar a la función de ApiService para obtener posts
-      setPosts(response.data); // Almacenar los posts en el estado
+      const response = await fetchPosts(authToken); 
+      setPosts(response.data); 
     } catch (error) {
       console.log(error);
       Alert.alert("Error", "Could not fetch posts", [{ text: "OK" }]);
@@ -33,19 +32,17 @@ const HomeScreen = ({ navigation }) => {
     }
   };
 
-  // Refrescar los posts cada vez que se vuelve a la pantalla Home
   useFocusEffect(
     React.useCallback(() => {
-      getPosts(); // Cargar los posts cada vez que la pantalla tiene foco
+      getPosts(); 
     }, [])
   );
 
-  // Editar un post existente
   const handleEditPost = async () => {
     if (!editPostId) return;
     setIsLoading(true);
     try {
-      const response = await updatePost(editPostId, content, authToken); // Llamar a la función de ApiService para editar post
+      const response = await updatePost(editPostId, content, authToken); 
       setPosts(
         posts.map((post) =>
           post.id === editPostId
@@ -64,11 +61,10 @@ const HomeScreen = ({ navigation }) => {
     }
   };
 
-  // Borrar un post existente
   const handleDeletePost = async (postId) => {
     setIsLoading(true);
     try {
-      await deletePost(postId, authToken); // Llamar a la función de ApiService para eliminar post
+      await deletePost(postId, authToken); 
       setPosts(posts.filter((post) => post.id !== postId));
       Alert.alert("Success", "Post deleted successfully!", [{ text: "OK" }]);
     } catch (error) {
@@ -79,7 +75,7 @@ const HomeScreen = ({ navigation }) => {
     }
   };
 
-  // Iniciar el proceso de edición
+
   const startEditingPost = (postId, postContent) => {
     setEditPostId(postId);
     setContent(postContent);
@@ -107,7 +103,7 @@ const HomeScreen = ({ navigation }) => {
         </View>
       )}
 
-      {/* Mostrar los posts */}
+
       <FlatList
         data={posts}
         keyExtractor={(item) => item.id.toString()}
@@ -128,7 +124,7 @@ const HomeScreen = ({ navigation }) => {
         )}
       />
 
-      {/* Botón de "+" para navegar a la pantalla Share */}
+
       <TouchableOpacity
         style={styles.addButton}
         onPress={() => navigation.navigate("Share")}

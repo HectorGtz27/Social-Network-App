@@ -10,19 +10,19 @@ import {
   Platform,
   KeyboardAvoidingView,
 } from "react-native";
-import { signUp } from "../services/ApiService"; // Importar la función de ApiService
+import { signUp } from "../services/ApiService"; 
 
 const SignUpScreen = ({ navigation }) => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [successMessage, setSuccessMessage] = useState(""); // Estado para el mensaje de éxito
-  const [isLoading, setIsLoading] = useState(false); // Estado para el indicador de carga
+  const [successMessage, setSuccessMessage] = useState(""); 
+  const [isLoading, setIsLoading] = useState(false); 
 
   const handleSignUp = async () => {
-    setIsLoading(true); // Mostrar el indicador de carga
+    setIsLoading(true);
     try {
-      const response = await signUp(username, email, password); // Llamar a la función de ApiService
+      const response = await signUp(username, email, password); 
 
       if (response.data.token) {
         setSuccessMessage("Sign up successful! Please login.");
@@ -54,13 +54,13 @@ const SignUpScreen = ({ navigation }) => {
         );
       }
     } finally {
-      setIsLoading(false); // Ocultar el indicador de carga cuando se complete la solicitud
+      setIsLoading(false);
     }
   };
 
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"} // Ajusta el comportamiento en función de la plataforma
+      behavior={Platform.OS === "ios" ? "padding" : "height"} 
       style={styles.container}
     >
       <Text style={styles.headerSignUp}>Create an Account</Text>
@@ -91,7 +91,7 @@ const SignUpScreen = ({ navigation }) => {
       <TouchableOpacity
         style={styles.signUpButton}
         onPress={handleSignUp}
-        disabled={isLoading} // Desactivar el botón mientras está cargando
+        disabled={isLoading} 
       >
         {isLoading ? (
           <ActivityIndicator size="small" color="#fff" />

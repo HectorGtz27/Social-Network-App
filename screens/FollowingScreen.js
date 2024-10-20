@@ -1,15 +1,14 @@
-// FollowingScreen.js
 import React, { useEffect, useState, useContext } from "react";
 import { View, Text, FlatList, ActivityIndicator, StyleSheet, TouchableOpacity, Image, Alert } from "react-native";
 import { AuthContext } from "../contexts/AuthContext";
 import { fetchFollowingPosts, likePost, unlikePost } from "../services/ApiService";
+import { useFocusEffect } from "@react-navigation/native"; 
 
 const FollowingScreen = ({ navigation }) => {
   const { authToken, userId } = useContext(AuthContext);
   const [followingPosts, setFollowingPosts] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Función para obtener los posts de los usuarios seguidos
   const getFollowingPosts = async () => {
     setLoading(true);
     try {
@@ -23,12 +22,13 @@ const FollowingScreen = ({ navigation }) => {
     }
   };
 
-  // Llamar a getFollowingPosts cuando se monta el componente
-  useEffect(() => {
-    getFollowingPosts();
-  }, []);
+  
+  useFocusEffect(
+    React.useCallback(() => {
+      getFollowingPosts(); 
+    }, []) 
+  );
 
-  // Función para alternar el estado de Like y Unlike
   const handleLikeToggle = async (post) => {
     const isLiked = post.liked;
     try {
@@ -53,7 +53,6 @@ const FollowingScreen = ({ navigation }) => {
     }
   };
 
-  // Renderizar cada post en la lista, reutilizando el estilo de PostsScreen
   const renderPost = ({ item }) => (
     <TouchableOpacity
       style={styles.postContainer}
@@ -64,24 +63,26 @@ const FollowingScreen = ({ navigation }) => {
       }
     >
       <View style={styles.userInfo}>
-                <View style={styles.avatar}>
-                    <Text style={styles.avatarText}>{item.username.charAt(0)}</Text>
-                </View>
-                <View style={styles.postDetails}>
-                    <Text style={styles.username}>{item.username}</Text>
-                    <Text style={styles.content}>{item.content}</Text>
-                </View>
-            </View>
-            <Text style={styles.timestamp}>{new Date(item.created_at).toLocaleString()}</Text>
-            <View style={styles.likesContainer}>
-                <TouchableOpacity onPress={() => handleLikeToggle(item)}>
-                    <Image
-                        source={item.liked ? require("../assets/like.png") : require("../assets/unlike.png")}
-                        style={styles.likeImage}
-                    />
-                </TouchableOpacity>
-                <Text style={styles.likesCount}>{item.likes} {item.likes === 1 ? "Like" : "Likes"}</Text>
-            </View>
+        <View style={styles.avatar}>
+          <Text style={styles.avatarText}>{item.username.charAt(0)}</Text>
+        </View>
+        <View style={styles.postDetails}>
+          <Text style={styles.username}>{item.username}</Text>
+          <Text style={styles.content}>{item.content}</Text>
+        </View>
+      </View>
+      <Text style={styles.timestamp}>{new Date(item.created_at).toLocaleString()}</Text>
+      <View style={styles.likesContainer}>
+        <TouchableOpacity onPress={() => handleLikeToggle(item)}>
+          <Image
+            source={item.liked ? require("../assets/like.png") : require("../assets/unlike.png")}
+            style={styles.likeImage}
+          />
+        </TouchableOpacity>
+        <Text style={styles.likesCount}>
+          {item.likes} {item.likes === 1 ? "Like" : "Likes"}
+        </Text>
+      </View>
     </TouchableOpacity>
   );
 
@@ -123,7 +124,7 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   userInfo: {
-    flexDirection: "row",  // Alinear avatar y detalles del post en una fila
+    flexDirection: "row", 
     alignItems: "center",
     marginBottom: 8,
   },
@@ -131,7 +132,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "#d4a017",
+    backgroundColor: "#6a0dad",
     alignItems: "center",
     justifyContent: "center",
     marginRight: 10,
@@ -142,12 +143,11 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   postDetails: {
-    flex: 1,  // Ocupa todo el espacio restante después del avatar
+    flex: 1,  
   },
   username: {
     fontWeight: "bold",
     fontSize: 16,
-    marginBottom: 4,
   },
   content: {
     fontSize: 14,
