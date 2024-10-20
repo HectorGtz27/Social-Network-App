@@ -23,12 +23,10 @@ const LoginScreen = ({ navigation }) => {
     try {
       const response = await loginService(email, password); // Llamar a la función de login de ApiService
 
-      if (response.data.token) {
+      if (response.data.token && response.data.userId) {  // Verificamos si viene el userId en la respuesta
         console.log(response.data.token);
-        login(response.data.token); // Guardar el token en el contexto
-        Alert.alert("Success", `Welcome back, ${response.data.username}!`, [
-          { text: "OK" },
-        ]);
+        login(response.data.token, response.data.userId);  // Guardamos el token y el userId en el contexto
+        Alert.alert("Success", `Welcome back, ${response.data.username}!`, [{ text: "OK" }]);
         navigation.navigate("Main");
       }
     } catch (error) {
@@ -107,7 +105,7 @@ const styles = StyleSheet.create({
     padding: 16,
     backgroundColor: "#f5f5f5",
   },
-  headerText: {
+  headerLogin: {
     fontSize: 24,
     fontWeight: "bold",
     textAlign: "center",
@@ -137,12 +135,6 @@ const styles = StyleSheet.create({
     color: "black",
     marginTop: 15,
     textAlign: "center",
-  },
-  headerLogin: {
-    fontSize: 24,
-    fontWeight: "bold",
-    textAlign: "center",
-    marginBottom: 20,
   },
   signLinkText: {
     color: "#007bff",
